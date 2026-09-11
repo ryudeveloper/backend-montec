@@ -1,0 +1,95 @@
+# =============================================================================
+# Portal Montec — Document Root
+# =============================================================================
+# Esta é a ÚNICA pasta do projeto servida pela web. O .env, o storage/ e o
+# vendor/ ficam um nível acima e são inalcançáveis por URL.
+# =============================================================================
+
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+
+    RewriteEngine On
+
+    # --- HTTPS ---------------------------------------------------------------
+    # As três condições evitam laço de redirecionamento. Com proxy ou CDN na
+    # frente (Cloudflare, LiteSpeed, balanceador), o TLS termina lá e o Apache
+    # recebe a requisição como http: sem checar os cabeçalhos encaminhados, ele
+    # redirecionaria para https indefinidamente.
+    #
+    # Não é opcional aqui: o cookie de sessão é `secure` em produção, e sobre
+    # http o login não completa — sem erro visível para quem tenta entrar.
+    RewriteCond %{HTTPS} !=on
+    RewriteCond %{HTTP:X-Forwarded-Proto} !=https
+    RewriteCond %{HTTP:X-Forwarded-SSL} !=on
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+    # Handle Authorization Header
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Handle X-XSRF-Token Header
+    RewriteCond %{HTTP:x-xsrf-token} .
+    RewriteRule .* - [E=HTTP_X_XSRF_TOKEN:%{HTTP:X-XSRF-Token}]
+
+    # Redirect Trailing Slashes If Not A Folder...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+
+    # Send Requests To Front Controller...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+</IfModule>
+
+# -----------------------------------------------------------------------------
+# Cabeçalhos de segurança
+# -----------------------------------------------------------------------------
+# O middleware ApiSecurityHeaders cobre só /api/*. As páginas do portal passam
+# pelo grupo `web` e ficariam sem nada — inclusive sem proteção contra
+# clickjacking numa tela que lista currículo e denúncia.
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Referrer-Policy "no-referrer"
+    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+
+    # HSTS: depois da primeira visita, o navegador recusa http neste host.
+    # Só faz sentido com certificado válido — o AutoSSL do cPanel fornece.
+    Header always set Strict-Transport-Security "max-age=31536000"
+
+    Header unset X-Powered-By
+
+    # Assets do Vite carregam hash no nome: podem ser eternos.
+    <FilesMatch "\.(js|css|woff2?)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+</IfModule>
+
+# -----------------------------------------------------------------------------
+# Compressão
+# -----------------------------------------------------------------------------
+<IfModule mod_deflate.c>
+    # Só texto. Imagem e fonte já vêm comprimidas.
+    AddOutputFilterByType DEFLATE text/html text/plain text/css
+    AddOutputFilterByType DEFLATE application/javascript application/json
+    AddOutputFilterByType DEFLATE image/svg+xml
+</IfModule>
+
+# -----------------------------------------------------------------------------
+# Barreira extra
+# -----------------------------------------------------------------------------
+# Nada disto deveria estar dentro de public/. Se estiver — link simbólico criado
+# por engano, cópia manual, Document Root apontado para o lugar errado — não é
+# servido.
+<FilesMatch "^\.env|\.env\.|^\.git|composer\.(json|lock)|package(-lock)?\.json|\.sqlite$|\.log$|\.map$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>

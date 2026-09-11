@@ -1,0 +1,32 @@
+# =============================================================================
+# NADA AQUI DEVE SER SERVIDO PELA WEB
+# =============================================================================
+# A raiz do projeto fica FORA do Document Root: o subdomínio aponta para
+# `public/`, e por isso este arquivo normalmente nunca é lido.
+#
+# Ele existe para o caso de o Document Root ser configurado errado — apontado
+# para a raiz do projeto em vez de para `public/`. Sem esta barreira, esse único
+# erro de configuração entrega:
+#
+#   /.env                          credenciais de banco, SMTP e da API
+#   /storage/app/private/resumes/  os currículos dos candidatos
+#   /database/database.sqlite      o banco inteiro, se for SQLite
+#   /vendor/                       versões exatas de cada dependência
+#
+# Defesa em profundidade: a configuração correta continua sendo o principal.
+# Isto é a rede embaixo dela.
+# =============================================================================
+
+# Apache 2.4
+<IfModule mod_authz_core.c>
+    Require all denied
+</IfModule>
+
+# Apache 2.2 (hospedagem antiga)
+<IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+</IfModule>
+
+# Se o servidor ignorar as diretivas acima, ainda assim não lista diretório.
+Options -Indexes
