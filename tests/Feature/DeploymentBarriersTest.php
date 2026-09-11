@@ -64,6 +64,28 @@ final class DeploymentBarriersTest extends TestCase
     }
 
     /**
+     * O Let's Encrypt valida o domínio buscando um arquivo em http PURO, sob
+     * /.well-known/acme-challenge/. Redirecionado para https, o AutoSSL do
+     * cPanel falha na conferência local e não emite nada.
+     *
+     * Sem certificado válido o portal não abre: o cabeçalho HSTS deste mesmo
+     * arquivo faz o navegador recusar certificado inválido sem oferecer
+     * exceção. E a renovação acontece a cada 90 dias, sozinha — quem remover
+     * esta linha não vê efeito nenhum hoje, e derruba o portal em três meses.
+     */
+    #[Test]
+    public function a_validacao_do_certificado_nao_e_redirecionada(): void
+    {
+        $contents = $this->contents('public/.htaccess');
+
+        $this->assertMatchesRegularExpression(
+            '/RewriteCond\s+%\{REQUEST_URI\}\s+!\^\/\\\.well-known\/acme-challenge\//',
+            $contents,
+            'A exceção do ACME sumiu: a renovação do certificado vai falhar em silêncio.'
+        );
+    }
+
+    /**
      * As páginas do portal passam pelo grupo `web`, que não tem o middleware de
      * cabeçalhos da API — elas dependem destes.
      */

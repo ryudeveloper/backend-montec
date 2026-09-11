@@ -20,6 +20,13 @@
     #
     # Não é opcional aqui: o cookie de sessão é `secure` em produção, e sobre
     # http o login não completa — sem erro visível para quem tenta entrar.
+    #
+    # A validação do Let's Encrypt (ACME HTTP-01) busca o desafio em http puro.
+    # Sem esta exceção o redirecionamento engole a requisição e o AutoSSL do
+    # cPanel falha na conferência local — antes mesmo de pedir o certificado.
+    # E sem certificado válido o login não completa: o cookie de sessão é
+    # `secure` em produção.
+    RewriteCond %{REQUEST_URI} !^/\.well-known/acme-challenge/
     RewriteCond %{HTTPS} !=on
     RewriteCond %{HTTP:X-Forwarded-Proto} !=https
     RewriteCond %{HTTP:X-Forwarded-SSL} !=on
