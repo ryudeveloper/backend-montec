@@ -14,8 +14,15 @@
 /.zed
 /auth.json
 /node_modules
-/public/build
 /public/fonts-manifest.dev.json
+# /public/build NÃO é ignorado, ao contrário do padrão do Laravel.
+#
+# O deploy é por `git pull` num cPanel compartilhado, que raramente tem Node — e
+# quando tem, é versão antiga. Sem os assets versionados, o portal abre sem CSS
+# e sem JS depois do clone.
+#
+# São 588 kB em 22 arquivos, sem sourcemaps. O custo é lembrar de rodar
+# `npm run build` antes de commitar uma mudança de interface.
 /public/hot
 /public/storage
 /storage/*.key

@@ -478,10 +478,3 @@ expose_php          = Off  ; não anunciar a versão do PHP
 pouca folga — outro motivo para o frontend usar multipart.
 
 ---
-
-## Diferença em relação ao bovbackend
-
-O [bovbackend](../bovbackend) usa **Pest 4**. Aqui ficou **PHPUnit** (que já vem
-no Laravel) porque o Packagist não respondeu durante a instalação — timeouts
-repetidos no metadata. Migrar depois é `composer require --dev pestphp/pest
-pestphp/pest-plugin-laravel`; os testes atuais rodam sob Pest sem alteração.

@@ -8,21 +8,42 @@ Leia o passo 2 antes de qualquer coisa.
 
 ---
 
-## 1. Gerar o pacote
+## 1. Levar o código até o servidor
 
-Na sua máquina:
+Há dois caminhos. **Por git é o recomendado**: atualizar depois vira um
+`git pull`, e dá para ver exatamente o que mudou entre uma versão e outra.
+
+### Por git (recomendado)
+
+No Terminal do cPanel, ou por SSH:
 
 ```bash
+mkdir -p ~/apps && cd ~/apps
+git clone https://github.com/ryudeveloper/backend-montec.git
 cd backend-montec
-npm run package:cpanel
 ```
 
-Sai o `backend-cpanel.zip` (~9,5 MB). O script confere e **aborta** se o pacote
-contiver `.env`, banco local, currículos, logs ou pacotes de desenvolvimento — e
-se faltar `public/index.php`, `public/build/manifest.json` ou o `vendor`.
+O clone **não traz** `vendor/` (76 MB, instalado pelo composer no servidor) nem
+o `.env` (as credenciais são da máquina, não do repositório).
 
-Os assets do portal (React + Inertia + Tailwind) são compilados aqui, não no
-servidor: cPanel compartilhado raramente tem Node, e quando tem é versão antiga.
+Traz, sim, o `public/build/` — ao contrário do padrão do Laravel, os assets do
+portal são versionados de propósito. cPanel compartilhado raramente tem Node, e
+sem eles o portal abriria sem CSS e sem JS.
+
+> Ao mudar algo de interface, rode `npm run build` **na sua máquina**, commite o
+> `public/build/` junto e dê `git pull` no servidor.
+
+### Por zip
+
+Se o servidor não tiver git:
+
+```bash
+npm run package:cpanel     # na sua máquina
+```
+
+Sai o `backend-cpanel.zip` (~9,5 MB), com o `vendor` já dentro. O script confere
+e **aborta** se o pacote contiver `.env`, banco local, currículos, logs ou
+pacotes de desenvolvimento.
 
 ---
 
@@ -159,21 +180,52 @@ sistema recusa em produção justamente para isso não passar.
 
 ---
 
-## 7. Comandos
+## 7. Rodar o deploy
 
-Precisa de linha de comando: **Terminal** no cPanel, ou SSH.
+Um comando só, no Terminal do cPanel ou por SSH:
 
 ```bash
 cd ~/apps/backend-montec
+bash scripts/deploy.sh
+```
 
-php artisan key:generate --force
-php artisan migrate --force
-php artisan optimize          # config, rotas e views em cache
+Ele instala as dependências de produção, gera o `APP_KEY` **só no primeiro
+deploy**, aplica as migrations, refaz os caches e ajusta as permissões. Antes de
+tudo isso confere o ambiente e **aborta com mensagem clara** se faltar `.env`,
+se o PHP for menor que 8.3 ou se o `public/build/` não tiver vindo.
 
-# Conta de acesso. A senha é pedida oculta — nunca como argumento, que ficaria
-# no histórico do shell e visível em `ps`.
+O script **não toca** no `.env` nem em `storage/app/private/` — credenciais e
+currículos já recebidos ficam onde estão.
+
+### Quando o Terminal usa outra versão de PHP
+
+Acontece com frequência: o site roda em 8.3 e o Terminal abre em 7.4. Aponte o
+binário certo:
+
+```bash
+PHP_BIN=/opt/cpanel/ea-php83/root/usr/bin/php bash scripts/deploy.sh
+```
+
+### Se não houver composer
+
+Instale na sua pasta pessoal, sem precisar de root:
+
+```bash
+mkdir -p ~/bin
+curl -sS https://getcomposer.org/installer | php -- --install-dir=$HOME/bin --filename=composer
+COMPOSER_BIN=$HOME/bin/composer bash scripts/deploy.sh
+```
+
+### A conta de acesso
+
+Só no primeiro deploy:
+
+```bash
 php artisan montec:create-user voce@montecmococa.com.br --name="Seu Nome" --roles=admin
 ```
+
+A senha é pedida oculta — nunca como argumento, que ficaria no histórico do
+shell e visível em `ps` para qualquer processo da máquina.
 
 Papéis: `hr`, `ombudsman`, `admin` (acumuláveis por vírgula). Comece por um
 `admin` — é o único que vê a trilha de auditoria.
@@ -257,16 +309,23 @@ pacote inteiro.
 
 ## Atualizações
 
-```bash
-npm run package:cpanel     # na sua máquina
-```
-
-No servidor, extraia por cima e rode:
+Na sua máquina, se mexeu em interface:
 
 ```bash
-php artisan migrate --force
-php artisan optimize
+npm run build
+git add public/build && git commit -m "..." && git push
 ```
 
-O `.env` e o `storage/app/private/` não vão no pacote, então **não são
-sobrescritos** — os currículos já recebidos continuam onde estão.
+No servidor:
+
+```bash
+cd ~/apps/backend-montec
+git pull
+bash scripts/deploy.sh
+```
+
+O `.env` e o `storage/app/private/` estão no `.gitignore`, então **não são
+tocados** — os currículos já recebidos continuam onde estão.
+
+Se o `git pull` reclamar de mudança local em `public/build/`, é porque alguém
+buildou no servidor. Resolva com `git checkout -- public/build && git pull`.
