@@ -68,6 +68,25 @@ fi
 "$PHP" artisan optimize:clear
 "$PHP" artisan optimize
 
+echo "==> Diretórios de escrita"
+
+# O git não versiona pasta vazia. Os diretórios de storage/framework existem no
+# repositório porque cada um carrega um .gitignore — mas o de currículos não
+# tem nenhum arquivo, então o `git clone` não o cria.
+#
+# O empacotador zip cria essas pastas ao montar o pacote; o caminho por git
+# ficava dependendo de o Flysystem criá-las sozinho na primeira escrita. Com
+# `'throw' => true` no disco, qualquer tropeço nisso vira 500 na hora em que um
+# candidato envia o currículo — e a mensagem de erro não diz o que faltou.
+for dir in storage/app/private/resumes \
+           storage/logs \
+           storage/framework/cache/data \
+           storage/framework/sessions \
+           storage/framework/views \
+           bootstrap/cache; do
+  mkdir -p "$dir"
+done
+
 echo "==> Permissões"
 chmod -R ug+rwX storage bootstrap/cache
 
