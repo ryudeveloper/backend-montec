@@ -8,13 +8,17 @@ return [
     |---------------------------------------------------------------------------
     | Destinatários
     |---------------------------------------------------------------------------
-    | Ficha da empresa (CLAUDE.md do frontend). Sobrescrevíveis por ambiente.
+    | SEM valor padrão, de propósito. Um padrão apontando para as caixas reais
+    | da empresa fazia qualquer ambiente — teste, homologação, demonstração —
+    | despachar currículo e conteúdo de denúncia para lá ao primeiro envio, sem
+    | nada indicando que aconteceu. Em produção o RecipientGuard falha no boot
+    | enquanto os três não estiverem declarados.
     */
     'recipients' => [
-        'sales' => env('MONTEC_MAIL_SALES', 'contato@montecmococa.com.br'),
-        'careers' => env('MONTEC_MAIL_CAREERS', 'vagas@montecmococa.com.br'),
+        'sales' => env('MONTEC_MAIL_SALES', ''),
+        'careers' => env('MONTEC_MAIL_CAREERS', ''),
         // Ouvidoria em caixa própria: o conteúdo é sensível e o acesso é restrito.
-        'whistleblower' => env('MONTEC_MAIL_WHISTLEBLOWER', 'ouvidoria@montecmococa.com.br'),
+        'whistleblower' => env('MONTEC_MAIL_WHISTLEBLOWER', ''),
     ],
 
     /*

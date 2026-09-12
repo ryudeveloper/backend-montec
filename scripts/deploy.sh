@@ -98,7 +98,7 @@ cat <<'NEXT'
 
   Primeiro deploy? Crie a conta de acesso:
 
-    php artisan montec:create-user voce@montecmococa.com.br --name="Seu Nome" --roles=admin
+    php artisan montec:create-user voce@suaempresa.com.br --name="Seu Nome" --roles=admin
 
   E confirme que o .env NÃO é alcançável pela web:
 

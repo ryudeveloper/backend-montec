@@ -10,12 +10,18 @@ declare(strict_types=1);
 | formulários usando o navegador do visitante como ponte.
 |
 | O frontend atual chama /api/* em caminho relativo, ou seja, mesma origem — aí
-| o CORS nem entra em jogo. Isto cobre o caso de a API subir em domínio próprio
-| (ex.: api.montecmococa.com.br).
+| o CORS nem entra em jogo. Isto cobre o caso de a API subir em domínio próprio.
+|
+| Sem padrão: lista vazia recusa toda origem cruzada. Um padrão apontando para
+| um domínio específico esconde o esquecimento, porque tudo continua respondendo
+| — só que autorizando um site que não é o deste ambiente.
+|
+| A comparação é LITERAL: esquema, host e porta precisam bater exatamente.
+| `https://site.com` e `https://www.site.com` são origens diferentes.
 */
 $origins = array_values(array_filter(array_map(
     'trim',
-    explode(',', (string) env('MONTEC_CORS_ORIGINS', 'https://www.montecmococa.com.br')),
+    explode(',', (string) env('MONTEC_CORS_ORIGINS', '')),
 )));
 
 return [

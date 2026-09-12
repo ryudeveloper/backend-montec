@@ -10,6 +10,7 @@ use App\Domain\Screening\DemoScreener;
 use App\Domain\Screening\ResumeRedactor;
 use App\Domain\Screening\Screener;
 use App\Support\Mail\MailDriverGuard;
+use App\Support\Mail\RecipientGuard;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -52,6 +53,17 @@ class AppServiceProvider extends ServiceProvider
         (new MailDriverGuard)->assertSafe(
             (string) $this->app->environment(),
             (string) config('mail.default'),
+        );
+
+        /*
+         | Falha no boot enquanto produção não disser para ONDE vão as mensagens.
+         | Os destinatários já tiveram como padrão as caixas reais da empresa —
+         | e um ambiente de teste mandava currículo e denúncia para lá sem que
+         | nada registrasse. Ver RecipientGuard.
+         */
+        (new RecipientGuard)->assertConfigured(
+            (string) $this->app->environment(),
+            (array) config('montec.recipients'),
         );
     }
 }
