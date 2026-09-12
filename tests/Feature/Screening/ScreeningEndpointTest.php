@@ -96,7 +96,7 @@ final class ScreeningEndpointTest extends TestCase
         $application = $this->application();
 
         $this->actingAs(User::factory()->create(['roles' => ['hr']]))
-            ->post("/rh/candidaturas/{$application->id}/parecer")
+            ->post("/candidaturas/{$application->id}/parecer")
             ->assertRedirect(route('portal.applications.show', $application));
 
         $parecer = ResumeAssessment::sole();
@@ -120,7 +120,7 @@ final class ScreeningEndpointTest extends TestCase
         $application = $this->application();
 
         $this->actingAs(User::factory()->create(['roles' => ['hr']]))
-            ->post("/rh/candidaturas/{$application->id}/parecer");
+            ->post("/candidaturas/{$application->id}/parecer");
 
         Http::assertSent(function (ClientRequest $request): bool {
             $corpo = $request->body();
@@ -156,7 +156,7 @@ final class ScreeningEndpointTest extends TestCase
         $application = $this->application();
         $user = User::factory()->create(['roles' => ['hr']]);
 
-        $this->actingAs($user)->post("/rh/candidaturas/{$application->id}/parecer");
+        $this->actingAs($user)->post("/candidaturas/{$application->id}/parecer");
 
         $log = PortalAccessLog::sole();
         $this->assertSame($user->id, $log->user_id);
@@ -174,8 +174,8 @@ final class ScreeningEndpointTest extends TestCase
         $application = $this->application();
         $user = User::factory()->create(['roles' => ['hr']]);
 
-        $this->actingAs($user)->post("/rh/candidaturas/{$application->id}/parecer");
-        $this->actingAs($user)->post("/rh/candidaturas/{$application->id}/parecer");
+        $this->actingAs($user)->post("/candidaturas/{$application->id}/parecer");
+        $this->actingAs($user)->post("/candidaturas/{$application->id}/parecer");
 
         $this->assertSame(1, ResumeAssessment::count());
         // Mas as duas leituras ficam na trilha.
@@ -191,7 +191,7 @@ final class ScreeningEndpointTest extends TestCase
         $application = $this->application();
 
         $this->actingAs(User::factory()->create(['roles' => ['ombudsman']]))
-            ->post("/rh/candidaturas/{$application->id}/parecer")
+            ->post("/candidaturas/{$application->id}/parecer")
             ->assertForbidden();
 
         $this->assertSame(0, ResumeAssessment::count());
@@ -203,7 +203,7 @@ final class ScreeningEndpointTest extends TestCase
         Storage::fake('resumes');
         $application = $this->application();
 
-        $this->post("/rh/candidaturas/{$application->id}/parecer")->assertRedirect('/rh/login');
+        $this->post("/candidaturas/{$application->id}/parecer")->assertRedirect('/login');
     }
 
     /** Falha do serviço volta como aviso, não como 500. */
@@ -216,7 +216,7 @@ final class ScreeningEndpointTest extends TestCase
         $application = $this->application();
 
         $this->actingAs(User::factory()->create(['roles' => ['hr']]))
-            ->post("/rh/candidaturas/{$application->id}/parecer")
+            ->post("/candidaturas/{$application->id}/parecer")
             ->assertRedirect(route('portal.applications.show', $application))
             ->assertSessionHasErrors('screening');
 
@@ -239,7 +239,7 @@ final class ScreeningEndpointTest extends TestCase
         ]);
 
         $this->actingAs(User::factory()->create(['roles' => ['hr']]))
-            ->post("/rh/candidaturas/{$application->id}/parecer")
+            ->post("/candidaturas/{$application->id}/parecer")
             ->assertSessionHasErrors('screening');
     }
 
@@ -251,7 +251,7 @@ final class ScreeningEndpointTest extends TestCase
         $application = $this->application();
 
         $this->actingAs(User::factory()->create(['roles' => ['hr']]))
-            ->post("/rh/candidaturas/{$application->id}/parecer")
+            ->post("/candidaturas/{$application->id}/parecer")
             ->assertSessionHasErrors('screening');
 
         $this->assertSame(0, ResumeAssessment::count());

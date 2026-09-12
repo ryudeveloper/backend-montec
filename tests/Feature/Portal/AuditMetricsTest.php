@@ -52,7 +52,7 @@ final class AuditMetricsTest extends TestCase
         $this->log($operator, PortalAccessLog::RESOURCE_RESUME, 'cv-1');
 
         $this->actingAs(User::factory()->create(['roles' => ['admin']]))
-            ->get('/rh/auditoria')
+            ->get('/auditoria')
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->where('counts.total', 6)
                 ->where('counts.reports', 4)
@@ -66,7 +66,7 @@ final class AuditMetricsTest extends TestCase
     public function sem_acesso_registrado_as_metricas_sao_zero(): void
     {
         $this->actingAs(User::factory()->create(['roles' => ['admin']]))
-            ->get('/rh/auditoria')
+            ->get('/auditoria')
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->where('counts.total', 0)
                 ->where('counts.reports', 0)

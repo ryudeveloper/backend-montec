@@ -294,7 +294,7 @@ do envio), mas a declaração continua sendo necessária.
 
 | Verificação | Esperado |
 |---|---|
-| `https://api.montec.ryudev.net/rh/login` | tela de login, com estilo |
+| `https://api.montec.ryudev.net/login` | tela de login, com estilo |
 | `https://api.montec.ryudev.net/.env` | **404 ou 403** — se baixar o arquivo, o Document Root está errado: pare tudo e corrija |
 | `https://api.montec.ryudev.net/` | 404 (não há página pública) |
 | `https://api.montec.ryudev.net/up` | 200 |

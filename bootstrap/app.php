@@ -40,8 +40,8 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Visitante sem sessão vai para o login do portal, não para a rota
         // `login` padrão do Laravel — que não existe aqui.
-        $middleware->redirectGuestsTo('/rh/login');
-        $middleware->redirectUsersTo('/rh');
+        $middleware->redirectGuestsTo('/login');
+        $middleware->redirectUsersTo('/');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         /*

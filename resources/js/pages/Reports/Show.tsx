@@ -7,7 +7,7 @@ export default function ReportsShow({ report }: { report: ReportDetail }) {
     <>
       <Head title="Denúncia" />
 
-      <BackLink href="/rh/ouvidoria">Ouvidoria</BackLink>
+      <BackLink href="/ouvidoria">Ouvidoria</BackLink>
 
       <div className="mt-4">
         <PageHead

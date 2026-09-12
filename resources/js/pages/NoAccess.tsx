@@ -7,7 +7,7 @@ import type { SharedProps } from '../types';
  *
  * Responde 200 com explicação e botão de sair, não 403: um 403 aqui prendia a
  * pessoa — a tela de erro não tinha o cabeçalho, logo não tinha Sair, e
- * /rh/login devolve quem já está autenticado para cá, que negava de novo.
+ * /login devolve quem já está autenticado para cá, que negava de novo.
  */
 export default function NoAccess() {
   const auth = usePage<SharedProps>().props.auth ?? { user: null };
@@ -34,7 +34,7 @@ export default function NoAccess() {
         </p>
 
         <Link
-          href="/rh/logout"
+          href="/logout"
           method="post"
           as="button"
           className="mt-8 rounded-lg border border-line px-4 py-2.5 text-sm font-medium text-ink-soft transition-colors hover:border-edge hover:text-ink"

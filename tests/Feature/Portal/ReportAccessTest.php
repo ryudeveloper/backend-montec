@@ -44,7 +44,7 @@ final class ReportAccessTest extends TestCase
     #[Test]
     public function visitante_anonimo_e_mandado_para_o_login(): void
     {
-        $this->get('/rh/ouvidoria')->assertRedirect('/rh/login');
+        $this->get('/ouvidoria')->assertRedirect('/login');
     }
 
     #[Test]
@@ -54,7 +54,7 @@ final class ReportAccessTest extends TestCase
         $this->identifiedReport();
 
         $this->actingAs($this->ombudsman())
-            ->get('/rh/ouvidoria')
+            ->get('/ouvidoria')
             ->assertOk()
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->component('Reports/Index')
@@ -78,7 +78,7 @@ final class ReportAccessTest extends TestCase
         $report = $this->anonymousReport();
 
         $this->actingAs($this->ombudsman())
-            ->get('/rh/ouvidoria')
+            ->get('/ouvidoria')
             ->assertInertia(function (AssertableInertia $page) use ($report): void {
                 $listed = $page->toArray()['props']['reports']['data'][0];
 
@@ -104,14 +104,14 @@ final class ReportAccessTest extends TestCase
         $this->identifiedReport();
         $user = $this->ombudsman();
 
-        $this->actingAs($user)->get('/rh/ouvidoria?identificacao=anonima')
+        $this->actingAs($user)->get('/ouvidoria?identificacao=anonima')
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->has('reports.data', 1)
                 ->where('reports.data.0.isAnonymous', true)
                 ->where('filters.mode', 'anonima')
             );
 
-        $this->actingAs($user)->get('/rh/ouvidoria?identificacao=identificada')
+        $this->actingAs($user)->get('/ouvidoria?identificacao=identificada')
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->has('reports.data', 1)
                 ->where('reports.data.0.isAnonymous', false)
@@ -129,7 +129,7 @@ final class ReportAccessTest extends TestCase
         $report = $this->anonymousReport();
         $user = $this->ombudsman();
 
-        $this->actingAs($user)->get("/rh/ouvidoria/{$report->id}")->assertOk();
+        $this->actingAs($user)->get("/ouvidoria/{$report->id}")->assertOk();
 
         $log = PortalAccessLog::sole();
         $this->assertSame($user->id, $log->user_id);
@@ -144,7 +144,7 @@ final class ReportAccessTest extends TestCase
     {
         $report = $this->identifiedReport();
 
-        $this->actingAs($this->ombudsman())->get("/rh/ouvidoria/{$report->id}")->assertOk();
+        $this->actingAs($this->ombudsman())->get("/ouvidoria/{$report->id}")->assertOk();
 
         $attributes = PortalAccessLog::sole()->getAttributes();
         $serialized = json_encode($attributes) ?: '';
@@ -159,7 +159,7 @@ final class ReportAccessTest extends TestCase
         $report = $this->anonymousReport();
 
         $this->actingAs(User::factory()->create(['roles' => ['hr']]))
-            ->get("/rh/ouvidoria/{$report->id}")
+            ->get("/ouvidoria/{$report->id}")
             ->assertForbidden();
 
         $this->assertSame(0, PortalAccessLog::count());
@@ -180,7 +180,7 @@ final class ReportAccessTest extends TestCase
         $report = $this->anonymousReport();
 
         $this->actingAs($this->ombudsman())
-            ->get("/rh/ouvidoria/{$report->id}")
+            ->get("/ouvidoria/{$report->id}")
             ->assertOk()
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->component('Reports/Show')
@@ -196,7 +196,7 @@ final class ReportAccessTest extends TestCase
         $report = $this->identifiedReport();
 
         $this->actingAs($this->ombudsman())
-            ->get("/rh/ouvidoria/{$report->id}")
+            ->get("/ouvidoria/{$report->id}")
             ->assertOk()
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->where('report.isAnonymous', false)
@@ -209,7 +209,7 @@ final class ReportAccessTest extends TestCase
     public function denuncia_inexistente_responde_404(): void
     {
         $this->actingAs($this->ombudsman())
-            ->get('/rh/ouvidoria/01ABCDEFGHIJKLMNOPQRSTUVWX')
+            ->get('/ouvidoria/01ABCDEFGHIJKLMNOPQRSTUVWX')
             ->assertNotFound();
     }
 }

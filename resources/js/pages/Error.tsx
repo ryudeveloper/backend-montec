@@ -51,29 +51,29 @@ export default function ErrorPage({ status, message }: Props) {
 
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           {auth.can.viewResumes && (
-            <Link href="/rh/candidaturas" className={buttonClass}>
+            <Link href="/candidaturas" className={buttonClass}>
               Candidaturas
             </Link>
           )}
 
           {auth.can.viewReports && (
-            <Link href="/rh/ouvidoria" className={buttonClass}>
+            <Link href="/ouvidoria" className={buttonClass}>
               Ouvidoria
             </Link>
           )}
 
           {auth.can.viewAudit && (
-            <Link href="/rh/auditoria" className={buttonClass}>
+            <Link href="/auditoria" className={buttonClass}>
               Auditoria
             </Link>
           )}
 
           {auth.user === null ? (
-            <Link href="/rh/login" className={ghostButtonClass}>
+            <Link href="/login" className={ghostButtonClass}>
               Ir para o login
             </Link>
           ) : (
-            <Link href="/rh/logout" method="post" as="button" className={ghostButtonClass}>
+            <Link href="/logout" method="post" as="button" className={ghostButtonClass}>
               Sair
             </Link>
           )}

@@ -45,7 +45,7 @@ final class ResumeDownloadTest extends TestCase
         Storage::fake('resumes');
         $application = $this->application();
 
-        $this->get("/rh/candidaturas/{$application->id}/curriculo")->assertRedirect('/rh/login');
+        $this->get("/candidaturas/{$application->id}/curriculo")->assertRedirect('/login');
     }
 
     #[Test]
@@ -55,7 +55,7 @@ final class ResumeDownloadTest extends TestCase
         $application = $this->application();
 
         $this->actingAs(User::factory()->create(['roles' => []]))
-            ->get("/rh/candidaturas/{$application->id}/curriculo")
+            ->get("/candidaturas/{$application->id}/curriculo")
             ->assertForbidden();
     }
 
@@ -66,7 +66,7 @@ final class ResumeDownloadTest extends TestCase
         $application = $this->application();
 
         $response = $this->actingAs(User::factory()->create(['roles' => ['hr']]))
-            ->get("/rh/candidaturas/{$application->id}/curriculo");
+            ->get("/candidaturas/{$application->id}/curriculo");
 
         $response->assertOk();
         $this->assertSame("%PDF-1.4\nconteudo\n%%EOF", $response->streamedContent());
@@ -86,7 +86,7 @@ final class ResumeDownloadTest extends TestCase
         $application = $this->application();
 
         $response = $this->actingAs(User::factory()->create(['roles' => ['hr']]))
-            ->get("/rh/candidaturas/{$application->id}/curriculo");
+            ->get("/candidaturas/{$application->id}/curriculo");
 
         $disposition = (string) $response->headers->get('Content-Disposition');
         $this->assertStringStartsWith('attachment;', $disposition);
@@ -105,7 +105,7 @@ final class ResumeDownloadTest extends TestCase
         $application = $this->application();
         $user = User::factory()->create(['roles' => ['hr']]);
 
-        $this->actingAs($user)->get("/rh/candidaturas/{$application->id}/curriculo")->assertOk();
+        $this->actingAs($user)->get("/candidaturas/{$application->id}/curriculo")->assertOk();
 
         $log = PortalAccessLog::sole();
         $this->assertSame($user->id, $log->user_id);
@@ -122,7 +122,7 @@ final class ResumeDownloadTest extends TestCase
         $application = $this->application();
 
         $this->actingAs(User::factory()->create(['roles' => []]))
-            ->get("/rh/candidaturas/{$application->id}/curriculo")
+            ->get("/candidaturas/{$application->id}/curriculo")
             ->assertForbidden();
 
         $this->assertSame(0, PortalAccessLog::count());
@@ -137,7 +137,7 @@ final class ResumeDownloadTest extends TestCase
         Storage::disk('resumes')->delete($application->resume_path);
 
         $this->actingAs(User::factory()->create(['roles' => ['hr']]))
-            ->get("/rh/candidaturas/{$application->id}/curriculo")
+            ->get("/candidaturas/{$application->id}/curriculo")
             ->assertNotFound();
     }
 
@@ -146,7 +146,7 @@ final class ResumeDownloadTest extends TestCase
     public function candidatura_inexistente_responde_404(): void
     {
         $this->actingAs(User::factory()->create(['roles' => ['hr']]))
-            ->get('/rh/candidaturas/01ABCDEFGHIJKLMNOPQRSTUVWX/curriculo')
+            ->get('/candidaturas/01ABCDEFGHIJKLMNOPQRSTUVWX/curriculo')
             ->assertNotFound();
     }
 }

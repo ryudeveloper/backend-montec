@@ -19,7 +19,7 @@ interface Props {
 }
 
 export default function AuditIndex({ logs, counts, operators, filters }: Props) {
-  const nav = useFilterNavigation('/rh/auditoria');
+  const nav = useFilterNavigation('/auditoria');
 
   const applyFilters = (next: { type?: string; userId?: string }): void =>
     nav.go({

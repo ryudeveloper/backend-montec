@@ -58,7 +58,7 @@ final class SeparationOfDutiesTest extends TestCase
         $this->application();
 
         $this->actingAs(User::factory()->create(['roles' => ['hr']]))
-            ->get('/rh/candidaturas')
+            ->get('/candidaturas')
             ->assertOk();
     }
 
@@ -66,7 +66,7 @@ final class SeparationOfDutiesTest extends TestCase
     public function quem_tem_so_rh_nao_ve_a_lista_de_denuncias(): void
     {
         $this->actingAs(User::factory()->create(['roles' => ['hr']]))
-            ->get('/rh/ouvidoria')
+            ->get('/ouvidoria')
             ->assertForbidden();
     }
 
@@ -76,7 +76,7 @@ final class SeparationOfDutiesTest extends TestCase
         $report = $this->report();
 
         $this->actingAs(User::factory()->create(['roles' => ['hr']]))
-            ->get("/rh/ouvidoria/{$report->id}")
+            ->get("/ouvidoria/{$report->id}")
             ->assertForbidden();
     }
 
@@ -88,7 +88,7 @@ final class SeparationOfDutiesTest extends TestCase
         $this->report();
 
         $this->actingAs(User::factory()->create(['roles' => ['ombudsman']]))
-            ->get('/rh/ouvidoria')
+            ->get('/ouvidoria')
             ->assertOk();
     }
 
@@ -96,7 +96,7 @@ final class SeparationOfDutiesTest extends TestCase
     public function quem_tem_so_ouvidoria_nao_ve_a_lista_de_candidaturas(): void
     {
         $this->actingAs(User::factory()->create(['roles' => ['ombudsman']]))
-            ->get('/rh/candidaturas')
+            ->get('/candidaturas')
             ->assertForbidden();
     }
 
@@ -108,7 +108,7 @@ final class SeparationOfDutiesTest extends TestCase
         $application = $this->application();
 
         $this->actingAs(User::factory()->create(['roles' => ['ombudsman']]))
-            ->get("/rh/candidaturas/{$application->id}/curriculo")
+            ->get("/candidaturas/{$application->id}/curriculo")
             ->assertForbidden();
     }
 
@@ -122,8 +122,8 @@ final class SeparationOfDutiesTest extends TestCase
         $this->report();
         $user = User::factory()->create(['roles' => ['hr', 'ombudsman']]);
 
-        $this->actingAs($user)->get('/rh/candidaturas')->assertOk();
-        $this->actingAs($user)->get('/rh/ouvidoria')->assertOk();
+        $this->actingAs($user)->get('/candidaturas')->assertOk();
+        $this->actingAs($user)->get('/ouvidoria')->assertOk();
     }
 
     /**
@@ -141,8 +141,8 @@ final class SeparationOfDutiesTest extends TestCase
         $this->report();
         $admin = User::factory()->create(['roles' => ['admin']]);
 
-        $this->actingAs($admin)->get('/rh/candidaturas')->assertOk();
-        $this->actingAs($admin)->get('/rh/ouvidoria')->assertOk();
+        $this->actingAs($admin)->get('/candidaturas')->assertOk();
+        $this->actingAs($admin)->get('/ouvidoria')->assertOk();
     }
 
     /** E a trilha continua sendo exclusiva dele. */
@@ -150,11 +150,11 @@ final class SeparationOfDutiesTest extends TestCase
     public function so_o_admin_ve_a_trilha_de_auditoria(): void
     {
         $this->actingAs(User::factory()->create(['roles' => ['admin']]))
-            ->get('/rh/auditoria')->assertOk();
+            ->get('/auditoria')->assertOk();
 
         foreach ([['hr'], ['ombudsman'], ['hr', 'ombudsman']] as $roles) {
             $this->actingAs(User::factory()->create(['roles' => $roles]))
-                ->get('/rh/auditoria')->assertForbidden();
+                ->get('/auditoria')->assertForbidden();
         }
     }
 
@@ -163,9 +163,9 @@ final class SeparationOfDutiesTest extends TestCase
     {
         $user = User::factory()->create(['roles' => []]);
 
-        $this->actingAs($user)->get('/rh/candidaturas')->assertForbidden();
-        $this->actingAs($user)->get('/rh/ouvidoria')->assertForbidden();
-        $this->actingAs($user)->get('/rh/auditoria')->assertForbidden();
+        $this->actingAs($user)->get('/candidaturas')->assertForbidden();
+        $this->actingAs($user)->get('/ouvidoria')->assertForbidden();
+        $this->actingAs($user)->get('/auditoria')->assertForbidden();
     }
 
     /** Papel inventado na coluna não pode virar acesso. */
@@ -175,9 +175,9 @@ final class SeparationOfDutiesTest extends TestCase
         $user = User::factory()->create(['roles' => ['superusuario', 'root']]);
 
         $this->assertSame([], $user->roles());
-        $this->actingAs($user)->get('/rh/candidaturas')->assertForbidden();
-        $this->actingAs($user)->get('/rh/ouvidoria')->assertForbidden();
-        $this->actingAs($user)->get('/rh/auditoria')->assertForbidden();
+        $this->actingAs($user)->get('/candidaturas')->assertForbidden();
+        $this->actingAs($user)->get('/ouvidoria')->assertForbidden();
+        $this->actingAs($user)->get('/auditoria')->assertForbidden();
     }
 
     // ── navegação ───────────────────────────────────────────────────────────
@@ -198,7 +198,7 @@ final class SeparationOfDutiesTest extends TestCase
         $this->report();
 
         $this->actingAs(User::factory()->create(['roles' => ['hr']]))
-            ->get('/rh/candidaturas')
+            ->get('/candidaturas')
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->where('auth.can.viewResumes', true)
                 ->where('auth.can.viewReports', false)
@@ -206,7 +206,7 @@ final class SeparationOfDutiesTest extends TestCase
             );
 
         $this->actingAs(User::factory()->create(['roles' => ['ombudsman']]))
-            ->get('/rh/ouvidoria')
+            ->get('/ouvidoria')
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->where('auth.can.viewResumes', false)
                 ->where('auth.can.viewReports', true)
@@ -215,7 +215,7 @@ final class SeparationOfDutiesTest extends TestCase
 
         // Só a supervisão recebe a permissão de auditoria.
         $this->actingAs(User::factory()->create(['roles' => ['admin']]))
-            ->get('/rh/auditoria')
+            ->get('/auditoria')
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->where('auth.can.viewAudit', true)
             );
@@ -233,7 +233,7 @@ final class SeparationOfDutiesTest extends TestCase
         $this->application();
 
         $this->actingAs(User::factory()->create(['roles' => ['hr', 'admin']]))
-            ->get('/rh/candidaturas')
+            ->get('/candidaturas')
             ->assertInertia(function (AssertableInertia $page): void {
                 $auth = $page->toArray()['props']['auth'];
 

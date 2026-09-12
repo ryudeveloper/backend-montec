@@ -84,7 +84,7 @@ export default function Login() {
             <form
               onSubmit={(event) => {
                 event.preventDefault();
-                form.post('/rh/login');
+                form.post('/login');
               }}
               className="flex flex-col gap-7"
             >

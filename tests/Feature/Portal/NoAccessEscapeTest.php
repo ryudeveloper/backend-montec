@@ -16,7 +16,7 @@ use Tests\TestCase;
  * Quem entra sem área liberada precisa conseguir sair.
  *
  * Sem isto a pessoa fica presa: a tela de erro não tem o cabeçalho do portal,
- * logo não tem botão Sair, e `/rh/login` está atrás do middleware `guest`, que
+ * logo não tem botão Sair, e `/login` está atrás do middleware `guest`, que
  * devolve quem já está autenticado para a raiz — que negava outra vez. A única
  * saída era apagar o cookie na mão.
  */
@@ -42,7 +42,7 @@ final class NoAccessEscapeTest extends TestCase
         $user = $this->withoutArea();
 
         $this->actingAs($user)
-            ->get('/rh')
+            ->get('/')
             ->assertOk()
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->component('NoAccess')
@@ -58,7 +58,7 @@ final class NoAccessEscapeTest extends TestCase
     {
         $this->actingAs($this->withoutArea());
 
-        $this->post('/rh/logout')->assertRedirect('/rh/login');
+        $this->post('/logout')->assertRedirect('/login');
         $this->assertGuest();
     }
 
@@ -71,7 +71,7 @@ final class NoAccessEscapeTest extends TestCase
     public function a_pagina_403_renderiza_dentro_do_portal(): void
     {
         $this->actingAs(User::factory()->create(['roles' => ['hr']]))
-            ->get('/rh/ouvidoria')
+            ->get('/ouvidoria')
             ->assertForbidden()
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->component('Error')
@@ -87,7 +87,7 @@ final class NoAccessEscapeTest extends TestCase
     public function a_pagina_403_nao_vaza_a_area_proibida(): void
     {
         $this->actingAs(User::factory()->create(['roles' => ['ombudsman']]))
-            ->get('/rh/candidaturas')
+            ->get('/candidaturas')
             ->assertForbidden()
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->component('Error')
@@ -107,12 +107,12 @@ final class NoAccessEscapeTest extends TestCase
     #[Test]
     public function erro_de_servidor_nao_expoe_detalhe_interno(): void
     {
-        Route::middleware('web')->get('/rh/explode-de-proposito', function (): never {
+        Route::middleware('web')->get('/explode-de-proposito', function (): never {
             throw new RuntimeException('SELECT * FROM users WHERE senha_secreta = 42');
         });
 
         $response = $this->actingAs(User::factory()->create(['roles' => ['hr']]))
-            ->get('/rh/explode-de-proposito');
+            ->get('/explode-de-proposito');
 
         $response->assertStatus(500)
             ->assertInertia(fn (AssertableInertia $page) => $page

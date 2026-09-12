@@ -18,7 +18,7 @@ use Inertia\Response as InertiaResponse;
  *
  * Sem nenhuma área liberada, responde 200 com explicação e botão de sair, não
  * 403: um 403 aqui prendia a pessoa: a página de erro não tinha o layout do
- * portal, então não tinha Sair, e /rh/login devolve quem já está autenticado
+ * portal, então não tinha Sair, e /login devolve quem já está autenticado
  * para cá, que negava de novo. A única saída era apagar o cookie na mão.
  */
 final class PortalHomeController

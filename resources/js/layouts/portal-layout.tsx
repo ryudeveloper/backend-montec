@@ -62,7 +62,7 @@ export function PortalLayout({ children }: { children: ReactNode }) {
       {auth.user !== null && (
         <header className="relative z-10 border-b border-line bg-void/80 backdrop-blur-md">
           <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-10 gap-y-2 px-6">
-            <Link href="/rh" className="flex items-center gap-3 py-3.5">
+            <Link href="/" className="flex items-center gap-3 py-3.5">
               <Logo className="h-7" />
               <span aria-hidden="true" className="h-6 w-px bg-line" />
               <span className="eyebrow">Portal</span>
@@ -70,17 +70,17 @@ export function PortalLayout({ children }: { children: ReactNode }) {
 
             <nav className="flex items-center gap-7" aria-label="Áreas do portal">
               {auth.can.viewResumes && (
-                <NavLink href="/rh/candidaturas" active={path.startsWith('/rh/candidaturas')}>
+                <NavLink href="/candidaturas" active={path.startsWith('/candidaturas')}>
                   Candidaturas
                 </NavLink>
               )}
               {auth.can.viewReports && (
-                <NavLink href="/rh/ouvidoria" active={path.startsWith('/rh/ouvidoria')}>
+                <NavLink href="/ouvidoria" active={path.startsWith('/ouvidoria')}>
                   Ouvidoria
                 </NavLink>
               )}
               {auth.can.viewAudit && (
-                <NavLink href="/rh/auditoria" active={path.startsWith('/rh/auditoria')}>
+                <NavLink href="/auditoria" active={path.startsWith('/auditoria')}>
                   Auditoria
                 </NavLink>
               )}
@@ -94,7 +94,7 @@ export function PortalLayout({ children }: { children: ReactNode }) {
 
               {/* method="post": o Inertia envia o token CSRF da sessão. */}
               <Link
-                href="/rh/logout"
+                href="/logout"
                 method="post"
                 as="button"
                 className="rounded-lg border border-line px-3 py-1.5 text-sm text-ink-dim transition-colors hover:border-edge hover:text-ink"

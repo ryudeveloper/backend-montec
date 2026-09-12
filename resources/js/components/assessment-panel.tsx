@@ -70,7 +70,7 @@ export function AssessmentPanel({ applicationId, assessment, enabled }: Props) {
   const generate = (): void => {
     setGenerating(true);
     router.post(
-      `/rh/candidaturas/${applicationId}/parecer`,
+      `/candidaturas/${applicationId}/parecer`,
       {},
       { preserveScroll: true, onFinish: () => setGenerating(false) },
     );

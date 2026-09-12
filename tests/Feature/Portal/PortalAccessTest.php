@@ -30,8 +30,8 @@ final class PortalAccessTest extends TestCase
     #[Test]
     public function visitante_anonimo_e_mandado_para_o_login(): void
     {
-        $this->get('/rh')->assertRedirect('/rh/login');
-        $this->get('/rh/candidaturas')->assertRedirect('/rh/login');
+        $this->get('/')->assertRedirect('/login');
+        $this->get('/candidaturas')->assertRedirect('/login');
     }
 
     /** Conta sem papel não enxerga nada — ausência de papel é a negação. */
@@ -39,14 +39,14 @@ final class PortalAccessTest extends TestCase
     public function usuario_sem_papel_recebe_403(): void
     {
         $this->actingAs(User::factory()->create(['roles' => []]))
-            ->get('/rh/candidaturas')
+            ->get('/candidaturas')
             ->assertForbidden();
     }
 
     #[Test]
     public function usuario_do_rh_acessa_a_listagem(): void
     {
-        $this->actingAs($this->hr())->get('/rh/candidaturas')->assertOk();
+        $this->actingAs($this->hr())->get('/candidaturas')->assertOk();
     }
 
     /**
@@ -61,8 +61,8 @@ final class PortalAccessTest extends TestCase
     {
         $admin = User::factory()->create(['roles' => ['admin']]);
 
-        $this->actingAs($admin)->get('/rh/candidaturas')->assertOk();
-        $this->actingAs($admin)->get('/rh/ouvidoria')->assertOk();
+        $this->actingAs($admin)->get('/candidaturas')->assertOk();
+        $this->actingAs($admin)->get('/ouvidoria')->assertOk();
     }
 
     /**
@@ -77,16 +77,23 @@ final class PortalAccessTest extends TestCase
     public function toda_rota_de_conteudo_exige_o_papel_da_sua_area(): void
     {
         $expected = [
-            'rh/candidaturas' => 'resumes',
-            'rh/candidaturas/{application}' => 'resumes',
-            'rh/candidaturas/{application}/curriculo' => 'resumes',
-            'rh/ouvidoria' => 'reports',
-            'rh/ouvidoria/{report}' => 'reports',
-            'rh/auditoria' => 'audit',
+            'candidaturas' => 'resumes',
+            'candidaturas/{application}' => 'resumes',
+            'candidaturas/{application}/curriculo' => 'resumes',
+            'candidaturas/{application}/parecer' => 'resumes',
+            'ouvidoria' => 'reports',
+            'ouvidoria/{report}' => 'reports',
+            'auditoria' => 'audit',
         ];
 
+        // Selecionado pelo namespace do controller, não pelo caminho: as telas
+        // do portal perderam o prefixo `rh` e um filtro por URI passaria a não
+        // encontrar rota nenhuma — deixando o teste verde sem verificar nada.
         $routes = collect(app('router')->getRoutes()->getRoutes())
-            ->filter(fn ($route) => str_starts_with($route->uri(), 'rh'))
+            ->filter(fn ($route) => str_starts_with(
+                (string) $route->getAction('controller'),
+                'App\\Http\\Controllers\\Portal\\',
+            ))
             ->keyBy(fn ($route) => $route->uri());
 
         foreach ($expected as $uri => $area) {
@@ -121,7 +128,7 @@ final class PortalAccessTest extends TestCase
     }
 
     /**
-     * Regressão: quem é só da ouvidoria caía em /rh/candidaturas depois do login
+     * Regressão: quem é só da ouvidoria caía em /candidaturas depois do login
      * e levava 403 na cara — parecia defeito, não regra. O login encaminha para
      * o dispatcher, que manda cada pessoa para a área que ela pode abrir.
      */
@@ -129,26 +136,26 @@ final class PortalAccessTest extends TestCase
     public function o_login_encaminha_cada_papel_para_a_sua_area(): void
     {
         $hr = User::factory()->create(['roles' => ['hr'], 'password' => 'senha-de-teste-123']);
-        $this->post('/rh/login', ['email' => $hr->email, 'password' => 'senha-de-teste-123'])
-            ->assertRedirect('/rh');
-        $this->get('/rh')->assertRedirect(route('portal.applications.index'));
-        $this->post('/rh/logout');
+        $this->post('/login', ['email' => $hr->email, 'password' => 'senha-de-teste-123'])
+            ->assertRedirect('/');
+        $this->get('/')->assertRedirect(route('portal.applications.index'));
+        $this->post('/logout');
 
         $ombudsman = User::factory()->create(['roles' => ['ombudsman'], 'password' => 'senha-de-teste-123']);
-        $this->post('/rh/login', ['email' => $ombudsman->email, 'password' => 'senha-de-teste-123'])
-            ->assertRedirect('/rh');
-        $this->get('/rh')->assertRedirect(route('portal.reports.index'));
-        $this->post('/rh/logout');
+        $this->post('/login', ['email' => $ombudsman->email, 'password' => 'senha-de-teste-123'])
+            ->assertRedirect('/');
+        $this->get('/')->assertRedirect(route('portal.reports.index'));
+        $this->post('/logout');
 
         /*
          | Conta SEM papel algum recebe 200 com explicação e botão de sair, não
          | 403. Um 403 aqui prendia a pessoa: a tela de erro não tinha layout,
-         | logo não tinha Sair, e /rh/login devolve quem já está autenticado para
+         | logo não tinha Sair, e /login devolve quem já está autenticado para
          | cá — que negava de novo. Ver NoAccessEscapeTest.
          */
         $semPapel = User::factory()->create(['roles' => [], 'password' => 'senha-de-teste-123']);
-        $this->post('/rh/login', ['email' => $semPapel->email, 'password' => 'senha-de-teste-123']);
-        $this->get('/rh')->assertOk()
+        $this->post('/login', ['email' => $semPapel->email, 'password' => 'senha-de-teste-123']);
+        $this->get('/')->assertOk()
             ->assertInertia(fn (AssertableInertia $page) => $page->component('NoAccess'));
     }
 
@@ -157,10 +164,10 @@ final class PortalAccessTest extends TestCase
     {
         $user = User::factory()->create(['roles' => ['hr'], 'password' => 'senha-de-teste-123']);
 
-        $this->post('/rh/login', [
+        $this->post('/login', [
             'email' => $user->email,
             'password' => 'senha-de-teste-123',
-        ])->assertRedirect('/rh');
+        ])->assertRedirect('/');
 
         $this->assertAuthenticatedAs($user->fresh());
         $this->assertNotNull($user->fresh()->last_login_at);
@@ -171,7 +178,7 @@ final class PortalAccessTest extends TestCase
     {
         $user = User::factory()->create(['roles' => ['hr'], 'password' => 'senha-de-teste-123']);
 
-        $this->post('/rh/login', ['email' => $user->email, 'password' => 'errada'])
+        $this->post('/login', ['email' => $user->email, 'password' => 'errada'])
             ->assertSessionHasErrors('email');
 
         $this->assertGuest();
@@ -184,17 +191,17 @@ final class PortalAccessTest extends TestCase
         $user = User::factory()->create(['roles' => ['hr'], 'password' => 'senha-de-teste-123']);
 
         for ($attempt = 1; $attempt <= 5; $attempt++) {
-            $this->post('/rh/login', ['email' => $user->email, 'password' => 'errada']);
+            $this->post('/login', ['email' => $user->email, 'password' => 'errada']);
         }
 
-        $this->post('/rh/login', ['email' => $user->email, 'password' => 'errada'])
+        $this->post('/login', ['email' => $user->email, 'password' => 'errada'])
             ->assertStatus(429);
     }
 
     #[Test]
     public function o_logout_encerra_a_sessao(): void
     {
-        $this->actingAs($this->hr())->post('/rh/logout')->assertRedirect('/rh/login');
+        $this->actingAs($this->hr())->post('/logout')->assertRedirect('/login');
 
         $this->assertGuest();
     }
@@ -203,8 +210,8 @@ final class PortalAccessTest extends TestCase
     #[Test]
     public function nao_existe_rota_de_registro(): void
     {
-        $this->get('/rh/registrar')->assertNotFound();
-        $this->post('/rh/registrar', [])->assertNotFound();
+        $this->get('/registrar')->assertNotFound();
+        $this->post('/registrar', [])->assertNotFound();
         $this->get('/register')->assertNotFound();
     }
 }

@@ -13,14 +13,14 @@ use Tests\TestCase;
 /**
  * A raiz do subdomínio é o que as pessoas digitam e o que colam no chat interno.
  *
- * Ela ficava sem rota, devolvendo 404, e quem chegava pelo endereço do portal
- * concluía que o sistema estava fora do ar. O caminho certo — /rh/login — só era
- * conhecido por quem já tinha o link completo.
+ * Ela é a porta do portal inteiro — não de uma área. O endereço não carrega mais
+ * o prefixo `rh`: o portal deixou de ser só do RH quando a ouvidoria e a
+ * auditoria entraram, e uma pessoa da ouvidoria entrando por um caminho chamado
+ * `/rh` lia isso como estar no lugar errado.
  *
- * A raiz não decide nada por conta própria: aponta para /rh e deixa as regras
- * que já existem responderem. Visitante cai no login pelo `redirectGuestsTo`;
- * quem está autenticado é encaminhado pelo PortalHomeController para a área que
- * de fato pode abrir.
+ * A raiz não decide nada por conta própria: quem responde são as regras que já
+ * existem. Visitante cai no login pelo `redirectGuestsTo`; quem está autenticado
+ * é encaminhado pelo PortalHomeController para a área que de fato pode abrir.
  */
 final class RootEntryPointTest extends TestCase
 {
@@ -29,13 +29,8 @@ final class RootEntryPointTest extends TestCase
     #[Test]
     public function visitante_na_raiz_termina_no_login(): void
     {
-        $this->get('/')
-            ->assertRedirect('/rh')
-            ->assertSessionMissing('errors');
+        $this->get('/')->assertRedirect('/login');
 
-        // Seguindo o encaminhamento: é o `auth` que leva ao login, não a raiz.
-        // A asserção é sobre a página do Inertia, não sobre o HTML — a tela vive
-        // no componente React e o servidor entrega só o contêiner e os props.
         $this->followingRedirects()
             ->get('/')
             ->assertOk()
@@ -45,14 +40,8 @@ final class RootEntryPointTest extends TestCase
     #[Test]
     public function quem_cuida_de_curriculos_cai_em_candidaturas(): void
     {
-        $user = User::factory()->create(['roles' => ['hr']]);
-
-        $this->actingAs($user)
+        $this->actingAs(User::factory()->create(['roles' => ['hr']]))
             ->get('/')
-            ->assertRedirect('/rh');
-
-        $this->actingAs($user)
-            ->get('/rh')
             ->assertRedirect(route('portal.applications.index'));
     }
 
@@ -64,20 +53,47 @@ final class RootEntryPointTest extends TestCase
     #[Test]
     public function quem_cuida_da_ouvidoria_cai_em_ouvidoria(): void
     {
-        $user = User::factory()->create(['roles' => ['ombudsman']]);
-
-        $this->actingAs($user)
-            ->get('/rh')
+        $this->actingAs(User::factory()->create(['roles' => ['ombudsman']]))
+            ->get('/')
             ->assertRedirect(route('portal.reports.index'));
     }
 
+    #[Test]
+    public function o_administrador_cai_em_candidaturas(): void
+    {
+        $this->actingAs(User::factory()->create(['roles' => ['admin']]))
+            ->get('/')
+            ->assertRedirect(route('portal.applications.index'));
+    }
+
     /**
-     * A raiz encaminha, não autoriza. Se algum dia ela passar a responder
-     * conteúdo direto, esta asserção quebra — e é isso que se quer.
+     * O prefixo antigo não pode continuar respondendo: dois endereços servindo a
+     * mesma tela deixam links internos e favoritos divergirem sem ninguém notar.
      */
     #[Test]
-    public function a_raiz_nao_entrega_conteudo_por_conta_propria(): void
+    public function o_prefixo_antigo_nao_responde_mais(): void
     {
-        $this->get('/')->assertRedirect();
+        $this->actingAs(User::factory()->create(['roles' => ['admin']]))
+            ->get('/rh/candidaturas')
+            ->assertNotFound();
+
+        $this->get('/rh/login')->assertNotFound();
+    }
+
+    /**
+     * As rotas dos formulários públicos vivem sob /api e não podem colidir com
+     * as telas do portal — `/ouvidoria` (tela) e `/api/ouvidoria` (endpoint)
+     * são coisas diferentes e precisam continuar sendo.
+     */
+    #[Test]
+    public function as_telas_nao_colidem_com_os_endpoints_publicos(): void
+    {
+        $this->actingAs(User::factory()->create(['roles' => ['ombudsman']]))
+            ->get('/ouvidoria')
+            ->assertOk();
+
+        // O endpoint público não aceita GET — se aceitasse, a tela teria sido
+        // sobrescrita pela rota de API.
+        $this->get('/api/ouvidoria')->assertMethodNotAllowed();
     }
 }

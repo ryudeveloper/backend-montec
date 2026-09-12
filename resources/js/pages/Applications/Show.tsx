@@ -14,7 +14,7 @@ export default function ApplicationsShow({ application, assessment, screeningEna
     <>
       <Head title={application.name} />
 
-      <BackLink href="/rh/candidaturas">Candidaturas</BackLink>
+      <BackLink href="/candidaturas">Candidaturas</BackLink>
 
       <div className="mt-4">
         <PageHead

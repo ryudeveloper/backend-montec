@@ -16,7 +16,7 @@ const MODES = [
 ] as const;
 
 export default function ReportsIndex({ reports, counts, filters }: Props) {
-  const nav = useFilterNavigation('/rh/ouvidoria');
+  const nav = useFilterNavigation('/ouvidoria');
 
   /*
    * Devolve um objeto de props em vez de `number | undefined`: com

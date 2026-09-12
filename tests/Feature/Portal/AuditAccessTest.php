@@ -44,7 +44,7 @@ final class AuditAccessTest extends TestCase
     #[Test]
     public function o_admin_ve_a_auditoria(): void
     {
-        $this->actingAs($this->admin())->get('/rh/auditoria')->assertOk();
+        $this->actingAs($this->admin())->get('/auditoria')->assertOk();
     }
 
     /** Nem RH nem ouvidoria enxergam a trilha — só supervisão. */
@@ -53,7 +53,7 @@ final class AuditAccessTest extends TestCase
     {
         foreach ([['hr'], ['ombudsman'], ['hr', 'ombudsman']] as $roles) {
             $this->actingAs(User::factory()->create(['roles' => $roles]))
-                ->get('/rh/auditoria')
+                ->get('/auditoria')
                 ->assertForbidden();
         }
     }
@@ -61,7 +61,7 @@ final class AuditAccessTest extends TestCase
     #[Test]
     public function visitante_anonimo_e_mandado_para_o_login(): void
     {
-        $this->get('/rh/auditoria')->assertRedirect('/rh/login');
+        $this->get('/auditoria')->assertRedirect('/login');
     }
 
     #[Test]
@@ -79,7 +79,7 @@ final class AuditAccessTest extends TestCase
         $this->logEntry($operator, PortalAccessLog::RESOURCE_RESUME, $application->id);
 
         $this->actingAs($this->admin())
-            ->get('/rh/auditoria')
+            ->get('/auditoria')
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->component('Audit/Index')
                 ->has('logs.data', 1)
@@ -103,13 +103,13 @@ final class AuditAccessTest extends TestCase
 
         $admin = $this->admin();
 
-        $this->actingAs($admin)->get('/rh/auditoria?tipo=report')
+        $this->actingAs($admin)->get('/auditoria?tipo=report')
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->has('logs.data', 1)
                 ->where('logs.data.0.subject', 'Descarte irregular')
             );
 
-        $this->actingAs($admin)->get('/rh/auditoria?tipo=resume')
+        $this->actingAs($admin)->get('/auditoria?tipo=resume')
             ->assertInertia(fn (AssertableInertia $page) => $page->has('logs.data', 1));
     }
 
@@ -122,7 +122,7 @@ final class AuditAccessTest extends TestCase
         $this->logEntry($paulo, PortalAccessLog::RESOURCE_REPORT, '01B');
 
         $this->actingAs($this->admin())
-            ->get("/rh/auditoria?usuario={$paulo->id}")
+            ->get("/auditoria?usuario={$paulo->id}")
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->has('logs.data', 1)
                 ->where('logs.data.0.operator', 'Paulo')
@@ -141,7 +141,7 @@ final class AuditAccessTest extends TestCase
         $this->logEntry($operator, PortalAccessLog::RESOURCE_RESUME, '01JANAOEXISTE');
 
         $this->actingAs($this->admin())
-            ->get('/rh/auditoria')
+            ->get('/auditoria')
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->has('logs.data', 1)
                 ->where('logs.data.0.subject', 'registro expurgado')
@@ -181,7 +181,7 @@ final class AuditAccessTest extends TestCase
         ]);
 
         $admin = $this->admin();
-        $this->actingAs($admin)->get("/rh/candidaturas/{$application->id}/curriculo")->assertOk();
+        $this->actingAs($admin)->get("/candidaturas/{$application->id}/curriculo")->assertOk();
 
         $this->assertSame($admin->id, PortalAccessLog::sole()->user_id);
     }

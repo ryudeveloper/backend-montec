@@ -279,22 +279,23 @@ Duas coisas ficaram **fora** do Inertia de propósito:
   JSON puro, sem props de página nem cabeçalho de versão de assets.
 
 ```
-GET  /rh/login                              Tela de acesso
-POST /rh/login
-POST /rh/logout
-GET  /rh                                    Encaminha para a área do usuário
+GET  /login                            Tela de acesso
+POST /login
+POST /logout
+GET  /                                 Encaminha para a área do usuário
 
 --- exige papel `hr` ---------------------------------------------------------
-GET  /rh/candidaturas                       Lista, filtro por vaga, busca
-GET  /rh/candidaturas/{id}                  Detalhe do candidato
-GET  /rh/candidaturas/{id}/curriculo        Download auditado
+GET  /candidaturas                     Lista, filtro por vaga, busca
+GET  /candidaturas/{id}                Detalhe do candidato
+GET  /candidaturas/{id}/curriculo      Download auditado
+POST /candidaturas/{id}/parecer        Triagem por IA (se configurada)
 
 --- exige papel `ombudsman` --------------------------------------------------
-GET  /rh/ouvidoria                          Lista, filtro anônima/identificada
-GET  /rh/ouvidoria/{id}                      Detalhe da denúncia (auditado)
+GET  /ouvidoria                        Lista, filtro anônima/identificada
+GET  /ouvidoria/{id}                   Detalhe da denúncia (auditado)
 
 --- exige área `audit` (somente admin) ---------------------------------------
-GET  /rh/auditoria                          Trilha de acessos, somente leitura
+GET  /auditoria                        Trilha de acessos, somente leitura
 ```
 
 ### Separação de deveres

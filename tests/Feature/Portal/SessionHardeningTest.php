@@ -39,10 +39,10 @@ final class SessionHardeningTest extends TestCase
     {
         $user = User::factory()->create(['roles' => ['hr'], 'password' => 'senha-de-teste-123']);
 
-        $this->get('/rh/login');
+        $this->get('/login');
         $before = session()->getId();
 
-        $this->post('/rh/login', ['email' => $user->email, 'password' => 'senha-de-teste-123']);
+        $this->post('/login', ['email' => $user->email, 'password' => 'senha-de-teste-123']);
 
         $this->assertNotSame($before, session()->getId());
     }
@@ -62,9 +62,15 @@ final class SessionHardeningTest extends TestCase
         $webGroup = app(Kernel::class)->getMiddlewareGroups()['web'] ?? [];
         $this->assertContains(PreventRequestForgery::class, $webGroup, 'O grupo web perdeu a proteção CSRF.');
 
+        // Selecionado pelo namespace do controller, não pelo caminho nem pelo
+        // nome da rota: as telas perderam o prefixo `rh`, e o POST de login não
+        // tem nome — um filtro por nome deixaria de fora justamente a rota que
+        // mais precisa de CSRF.
         $postRoutes = collect(app('router')->getRoutes()->getRoutes())
-            ->filter(fn ($route) => str_starts_with($route->uri(), 'rh')
-                && in_array('POST', $route->methods(), true));
+            ->filter(fn ($route) => str_starts_with(
+                (string) $route->getAction('controller'),
+                'App\\Http\\Controllers\\Portal\\',
+            ) && in_array('POST', $route->methods(), true));
 
         $this->assertGreaterThan(0, $postRoutes->count());
 
@@ -77,7 +83,7 @@ final class SessionHardeningTest extends TestCase
     #[Test]
     public function as_paginas_do_portal_pedem_noindex(): void
     {
-        $response = $this->actingAs(User::factory()->create(['roles' => ['hr']]))->get('/rh/candidaturas');
+        $response = $this->actingAs(User::factory()->create(['roles' => ['hr']]))->get('/candidaturas');
 
         $response->assertOk();
         $this->assertStringContainsString('noindex', $response->getContent() ?: '');

@@ -24,75 +24,69 @@ use Illuminate\Support\Facades\Route;
 |
 | As rotas declaram ÁREA, não papel. A sobreposição do administrador (que abre as
 | duas áreas operacionais) vive num lugar só, no model User.
-*/
-
-/*
-| A raiz é o que as pessoas digitam e o que colam no chat interno. Sem rota ela
-| devolvia 404, e quem chegava pelo endereço do portal concluía que o sistema
-| estava fora do ar — o caminho certo só era conhecido por quem já tinha o link
-| completo.
 |
-| Ela apenas encaminha: quem decide são as regras que já existem. Visitante cai
-| no login pelo `redirectGuestsTo` do bootstrap; quem está autenticado segue pelo
-| PortalHomeController para a área que de fato pode abrir.
+| Sem prefixo de área no caminho. O portal nasceu só com currículos e as rotas
+| ficaram sob `rh`; com a ouvidoria e a auditoria dentro, o prefixo passou a
+| mentir — e quem cuida da ouvidoria entrava por um endereço chamado `/rh`, o que
+| se lê como estar no lugar errado.
 |
-| Deixa de esconder que há uma aplicação aqui, é verdade. Mas o subdomínio se
-| chama `portal`, e /rh/login é público de qualquer forma — o 404 na raiz
-| custava mais em gente perdida do que rendia em discrição.
+| As telas do portal ficam na raiz e os formulários públicos sob /api, então
+| `/ouvidoria` é a tela de quem opera e `/api/ouvidoria` é o endpoint que o site
+| chama. Nomes iguais, caminhos distintos, sem colisão.
 */
-Route::redirect('/', '/rh')->name('portal.root');
+Route::middleware('guest')->group(function (): void {
+    Route::get('/login', [LoginController::class, 'show'])->name('portal.login');
+    // Segunda camada; a primeira é por e-mail+origem dentro do LoginRequest.
+    Route::post('/login', [LoginController::class, 'store'])->middleware('throttle:10,1');
+});
 
-Route::prefix('rh')->group(function (): void {
-    Route::middleware('guest')->group(function (): void {
-        Route::get('/login', [LoginController::class, 'show'])->name('portal.login');
-        // Segunda camada; a primeira é por e-mail+origem dentro do LoginRequest.
-        Route::post('/login', [LoginController::class, 'store'])->middleware('throttle:10,1');
-    });
+Route::middleware('auth')->group(function (): void {
+    Route::post('/logout', [LoginController::class, 'destroy'])->name('portal.logout');
 
-    Route::middleware('auth')->group(function (): void {
-        Route::post('/logout', [LoginController::class, 'destroy'])->name('portal.logout');
+    /*
+     | A raiz é a porta do portal. Ela não decide nada por conta própria: quem
+     | chega sem sessão é levado ao login pelo `redirectGuestsTo` do bootstrap, e
+     | quem está autenticado é encaminhado para a área que de fato pode abrir.
+     */
+    Route::get('/', PortalHomeController::class)->name('portal.home');
 
-        // Encaminha cada pessoa para a área que ela de fato pode abrir.
-        Route::get('/', PortalHomeController::class)->name('portal.home');
+    Route::middleware(EnsureAreaAccess::class.':resumes')->group(function (): void {
+        Route::get('/candidaturas', [JobApplicationPortalController::class, 'index'])
+            ->name('portal.applications.index');
 
-        Route::middleware(EnsureAreaAccess::class.':resumes')->group(function (): void {
-            Route::get('/candidaturas', [JobApplicationPortalController::class, 'index'])
-                ->name('portal.applications.index');
+        Route::get('/candidaturas/{application}', [JobApplicationPortalController::class, 'show'])
+            ->name('portal.applications.show');
 
-            Route::get('/candidaturas/{application}', [JobApplicationPortalController::class, 'show'])
-                ->name('portal.applications.show');
-
-            Route::get('/candidaturas/{application}/curriculo', [JobApplicationPortalController::class, 'downloadResume'])
-                ->name('portal.applications.resume');
-
-            /*
-             | POST porque cria registro e custa dinheiro: não é leitura
-             | idempotente e não pode ser disparada por prefetch do navegador.
-             */
-            Route::post('/candidaturas/{application}/parecer', [ResumeScreeningController::class, 'store'])
-                ->name('portal.applications.screen');
-        });
-
-        Route::middleware(EnsureAreaAccess::class.':reports')->group(function (): void {
-            Route::get('/ouvidoria', [WhistleblowerPortalController::class, 'index'])
-                ->name('portal.reports.index');
-
-            Route::get('/ouvidoria/{report}', [WhistleblowerPortalController::class, 'show'])
-                ->name('portal.reports.show');
-        });
+        Route::get('/candidaturas/{application}/curriculo', [JobApplicationPortalController::class, 'downloadResume'])
+            ->name('portal.applications.resume');
 
         /*
-         | Auditoria: exclusiva da administração. Saber quem abriu o currículo de
-         | quem — e quem leu qual denúncia — é informação de supervisão; nas mãos
-         | de quem opera a área vira ferramenta para descobrir que um colega está
-         | sendo investigado.
-         |
-         | Só leitura: não há rota de edição nem exclusão. Trilha que a interface
-         | pode alterar não serve como trilha.
+         | POST porque cria registro e custa dinheiro: não é leitura idempotente
+         | e não pode ser disparada por prefetch do navegador.
          */
-        Route::middleware(EnsureAreaAccess::class.':audit')->group(function (): void {
-            Route::get('/auditoria', [AuditPortalController::class, 'index'])
-                ->name('portal.audit.index');
-        });
+        Route::post('/candidaturas/{application}/parecer', [ResumeScreeningController::class, 'store'])
+            ->name('portal.applications.screen');
+    });
+
+    Route::middleware(EnsureAreaAccess::class.':reports')->group(function (): void {
+        Route::get('/ouvidoria', [WhistleblowerPortalController::class, 'index'])
+            ->name('portal.reports.index');
+
+        Route::get('/ouvidoria/{report}', [WhistleblowerPortalController::class, 'show'])
+            ->name('portal.reports.show');
+    });
+
+    /*
+     | Auditoria: exclusiva da administração. Saber quem abriu o currículo de
+     | quem — e quem leu qual denúncia — é informação de supervisão; nas mãos de
+     | quem opera a área vira ferramenta para descobrir que um colega está sendo
+     | investigado.
+     |
+     | Só leitura: não há rota de edição nem exclusão. Trilha que a interface
+     | pode alterar não serve como trilha.
+     */
+    Route::middleware(EnsureAreaAccess::class.':audit')->group(function (): void {
+        Route::get('/auditoria', [AuditPortalController::class, 'index'])
+            ->name('portal.audit.index');
     });
 });

@@ -20,7 +20,7 @@ interface Props {
 }
 
 export default function ApplicationsIndex({ applications, totalByOpening, filters }: Props) {
-  const nav = useFilterNavigation('/rh/candidaturas');
+  const nav = useFilterNavigation('/candidaturas');
   const searchRef = useRef<HTMLInputElement>(null);
   const [search, setSearch] = useState(filters.search);
 

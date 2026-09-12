@@ -46,7 +46,7 @@ final class ErrorPagePropsTest extends TestCase
     public function o_403_de_area_proibida_traz_as_props_do_usuario(): void
     {
         $this->actingAs(User::factory()->create(['roles' => ['hr']]))
-            ->get('/rh/auditoria')
+            ->get('/auditoria')
             ->assertForbidden()
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->component('Error')
@@ -60,7 +60,7 @@ final class ErrorPagePropsTest extends TestCase
     public function o_404_de_rota_inexistente_dentro_do_portal_tambem(): void
     {
         $this->actingAs(User::factory()->create(['roles' => ['admin']]))
-            ->get('/rh/pagina-que-nao-existe')
+            ->get('/pagina-que-nao-existe')
             ->assertNotFound()
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->component('Error')
@@ -85,7 +85,7 @@ final class ErrorPagePropsTest extends TestCase
 
         // Model binding que não encontra o registro vazaria a classe do model.
         $this->actingAs(User::factory()->create(['roles' => ['hr']]))
-            ->get('/rh/candidaturas/01ABCDEFGHIJKLMNOPQRSTUVWX')
+            ->get('/candidaturas/01ABCDEFGHIJKLMNOPQRSTUVWX')
             ->assertNotFound()
             ->assertInertia(function (AssertableInertia $page) use ($esperada): void {
                 $message = $page->toArray()['props']['message'];
