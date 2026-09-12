@@ -155,6 +155,22 @@
 }
 
 /* Rótulo técnico: caixa alta, espaçado, pequeno. */
+/*
+ * Rolagem sem barra visível.
+ *
+ * As abas do portal rolam na horizontal em telas estreitas. A barra do
+ * navegador aparecendo sob elas lê como defeito, não como recurso — e o
+ * conteúdo continua alcançável por toque, por roda e por teclado.
+ */
+@utility scroll-discreto {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 @utility eyebrow {
   font-size: 0.6875rem;
   font-weight: 600;

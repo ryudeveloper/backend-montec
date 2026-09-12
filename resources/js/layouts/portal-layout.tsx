@@ -68,8 +68,23 @@ export function PortalLayout({ children }: { children: ReactNode }) {
               <span className="eyebrow">Portal</span>
             </Link>
 
+            {/*
+              A navegação ocupa a linha inteira no celular, abaixo de marca e
+              Sair. Com wrap livre o cabeçalho virava três linhas em ordem
+              imprevisível, porque `ml-auto` só empurra dentro da linha em que o
+              elemento caiu.
+
+              Contida na mesma calha do conteúdo, sem sangria. A tentativa
+              anterior usava `-mx-4 w-full`, que encurta a caixa em vez de
+              esticá-la: a faixa sangrava 16px à esquerda e parava 32px antes da
+              direita, cortando "Auditoria" no meio com uma borda dura no meio
+              da tela. Corte assimétrico se lê como defeito.
+
+              Rola na horizontal porque o conjunto de abas cresce com o papel de
+              quem entra — e a barra fica escondida para o corte parecer o que é.
+            */}
             <nav
-              className="-mx-4 order-last flex w-full items-center gap-6 overflow-x-auto px-4 sm:mx-0 sm:order-none sm:w-auto sm:gap-7 sm:overflow-visible sm:px-0"
+              className="scroll-discreto order-last flex w-full items-center gap-5 overflow-x-auto sm:order-none sm:w-auto sm:gap-7 sm:overflow-visible"
               aria-label="Áreas do portal"
             >
               {auth.can.viewResumes && (

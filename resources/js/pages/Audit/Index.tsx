@@ -160,7 +160,7 @@ export default function AuditIndex({ logs, counts, operators, filters }: Props) 
                       <td className="px-4 py-3.5 align-top sm:px-6 lg:align-middle">
                         <span className="text-ink">{entry.operator}</span>
                         {entry.operatorEmail !== null && (
-                          <span className="mt-0.5 block break-all text-xs text-ink-dim">
+                          <span className="mt-0.5 block wrap-anywhere text-xs text-ink-dim">
                             {entry.operatorEmail}
                           </span>
                         )}
@@ -168,12 +168,14 @@ export default function AuditIndex({ logs, counts, operators, filters }: Props) 
                         <span className="mt-1.5 block text-xs text-ink-soft lg:hidden">
                           {entry.subject}
                         </span>
-                        <span className="mt-0.5 block font-mono text-xs text-ink-dim lg:hidden">
-                          {entry.at}
+                        {/* Mesmo motivo do flex em candidaturas: sem oportunidade
+                            de quebra, horário e IP viram um bloco indivisível. */}
+                        <span className="mt-0.5 flex flex-wrap items-baseline gap-x-1.5 font-mono text-xs text-ink-dim lg:hidden">
+                          <span>{entry.at}</span>
                           {entry.ip !== null && (
                             <>
-                              <span className="mx-1.5">·</span>
-                              {entry.ip}
+                              <span aria-hidden="true">·</span>
+                              <span>{entry.ip}</span>
                             </>
                           )}
                         </span>

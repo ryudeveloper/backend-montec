@@ -167,15 +167,26 @@ export default function ApplicationsIndex({ applications, totalByOpening, filter
                         >
                           {application.name}
                         </Link>
-                        <div className="mt-0.5 break-all text-xs text-ink-dim">
+                        {/* wrap-anywhere e não break-all: quebra o e-mail só quando ele não cabe,
+                            e ainda assim mantém a largura mínima da célula baixa. */}
+                        <div className="mt-0.5 wrap-anywhere text-xs text-ink-dim">
                           {application.email}
                         </div>
                         {/* O que as colunas escondidas diriam, no lugar onde
                             ainda cabe. aria-hidden não: no celular esta é a
                             única via para essa informação. */}
-                        <div className="mt-1.5 text-xs text-ink-soft md:hidden">
-                          {application.jobOpening}
-                          <span className="mx-1.5 text-ink-dim">·</span>
+                        {/*
+                          flex-wrap e não margem entre os trechos: o JSX apaga a
+                          quebra de linha entre {expressão} e <span>, então vaga,
+                          separador e data viravam um bloco indivisível de 235px
+                          — mais largo que a tela — e empurravam o botão de
+                          baixar para fora do painel.
+                        */}
+                        <div className="mt-1.5 flex flex-wrap items-baseline gap-x-1.5 text-xs text-ink-soft md:hidden">
+                          <span>{application.jobOpening}</span>
+                          <span aria-hidden="true" className="text-ink-dim">
+                            ·
+                          </span>
                           <span className="font-mono text-ink-dim">{application.receivedAt}</span>
                         </div>
                       </td>
