@@ -27,9 +27,9 @@ final class ErrorPagePropsTest extends TestCase
     use RefreshDatabase;
 
     #[Test]
-    public function o_404_na_raiz_traz_as_props_compartilhadas(): void
+    public function o_404_traz_as_props_compartilhadas(): void
     {
-        $this->get('/')
+        $this->get('/nao-existe-em-lugar-nenhum')
             ->assertNotFound()
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->component('Error')
@@ -80,7 +80,7 @@ final class ErrorPagePropsTest extends TestCase
     {
         $esperada = 'O endereço acessado não existe ou o registro não está mais disponível.';
 
-        $this->get('/')
+        $this->get('/nao-existe-em-lugar-nenhum')
             ->assertInertia(fn (AssertableInertia $page) => $page->where('message', $esperada));
 
         // Model binding que não encontra o registro vazaria a classe do model.

@@ -15,11 +15,17 @@ final class HealthCheckTest extends TestCase
         $this->get('/up')->assertOk();
     }
 
-    /** Serviço só de API: a raiz não deve anunciar o framework. */
+    /**
+     * Endereço inexistente não deve anunciar o framework.
+     *
+     * O caminho era a raiz, até ela passar a encaminhar para o portal. Precisa
+     * ser um endereço que nenhuma rota atende — é aí que a página de erro
+     * padrão do framework apareceria.
+     */
     #[Test]
-    public function a_raiz_nao_serve_pagina_do_framework(): void
+    public function endereco_inexistente_nao_serve_pagina_do_framework(): void
     {
-        $response = $this->get('/');
+        $response = $this->get('/nao-existe-em-lugar-nenhum');
 
         $response->assertNotFound();
         $this->assertStringNotContainsString('Laravel', $response->getContent() ?: '');

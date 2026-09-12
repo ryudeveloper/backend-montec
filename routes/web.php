@@ -24,9 +24,24 @@ use Illuminate\Support\Facades\Route;
 |
 | As rotas declaram ÁREA, não papel. A sobreposição do administrador (que abre as
 | duas áreas operacionais) vive num lugar só, no model User.
-|
-| A raiz `/` continua sem rota: responder 404 evita anunciar framework e versão.
 */
+
+/*
+| A raiz é o que as pessoas digitam e o que colam no chat interno. Sem rota ela
+| devolvia 404, e quem chegava pelo endereço do portal concluía que o sistema
+| estava fora do ar — o caminho certo só era conhecido por quem já tinha o link
+| completo.
+|
+| Ela apenas encaminha: quem decide são as regras que já existem. Visitante cai
+| no login pelo `redirectGuestsTo` do bootstrap; quem está autenticado segue pelo
+| PortalHomeController para a área que de fato pode abrir.
+|
+| Deixa de esconder que há uma aplicação aqui, é verdade. Mas o subdomínio se
+| chama `portal`, e /rh/login é público de qualquer forma — o 404 na raiz
+| custava mais em gente perdida do que rendia em discrição.
+*/
+Route::redirect('/', '/rh')->name('portal.root');
+
 Route::prefix('rh')->group(function (): void {
     Route::middleware('guest')->group(function (): void {
         Route::get('/login', [LoginController::class, 'show'])->name('portal.login');
