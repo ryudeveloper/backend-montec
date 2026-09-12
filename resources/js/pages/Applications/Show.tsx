@@ -30,7 +30,7 @@ export default function ApplicationsShow({ application, assessment, screeningEna
         />
       </div>
 
-      <Panel glow className="mt-8 p-7">
+      <Panel glow className="mt-8 p-5 sm:p-7">
         <dl className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           <DataRow label="E-mail">
             <a

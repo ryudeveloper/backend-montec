@@ -113,12 +113,36 @@ export default function AuditIndex({ logs, counts, operators, filters }: Props) 
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead>
+                  {/*
+                    Cinco colunas não cabem em 375px. No celular ficam Operador
+                    e Ação — quem fez o quê, que é a pergunta da trilha — e o
+                    resto desce para dentro da célula do operador. Nada some:
+                    numa auditoria, informação escondida por CSS e sem
+                    substituto é informação perdida.
+                  */}
                   <tr className="border-b border-line">
-                    <th scope="col" className="eyebrow px-6 py-3.5 font-semibold">Quando</th>
-                    <th scope="col" className="eyebrow px-6 py-3.5 font-semibold">Operador</th>
-                    <th scope="col" className="eyebrow px-6 py-3.5 font-semibold">Ação</th>
-                    <th scope="col" className="eyebrow px-6 py-3.5 font-semibold">Registro</th>
-                    <th scope="col" className="eyebrow px-6 py-3.5 text-right font-semibold">
+                    <th
+                      scope="col"
+                      className="eyebrow hidden px-6 py-3.5 font-semibold lg:table-cell"
+                    >
+                      Quando
+                    </th>
+                    <th scope="col" className="eyebrow px-4 py-3.5 font-semibold sm:px-6">
+                      Operador
+                    </th>
+                    <th scope="col" className="eyebrow px-4 py-3.5 font-semibold sm:px-6">
+                      Ação
+                    </th>
+                    <th
+                      scope="col"
+                      className="eyebrow hidden px-6 py-3.5 font-semibold lg:table-cell"
+                    >
+                      Registro
+                    </th>
+                    <th
+                      scope="col"
+                      className="eyebrow hidden px-6 py-3.5 text-right font-semibold lg:table-cell"
+                    >
                       Origem
                     </th>
                   </tr>
@@ -130,24 +154,39 @@ export default function AuditIndex({ logs, counts, operators, filters }: Props) 
                       style={{ animationDelay: `${Math.min(index, 12) * 14}ms` }}
                       className="animate-rise border-b border-line/60 transition-colors last:border-0 hover:bg-surface-2"
                     >
-                      <td className="whitespace-nowrap px-6 py-3.5 font-mono text-xs text-ink-dim">
+                      <td className="hidden whitespace-nowrap px-6 py-3.5 font-mono text-xs text-ink-dim lg:table-cell">
                         {entry.at}
                       </td>
-                      <td className="px-6 py-3.5">
+                      <td className="px-4 py-3.5 align-top sm:px-6 lg:align-middle">
                         <span className="text-ink">{entry.operator}</span>
                         {entry.operatorEmail !== null && (
-                          <span className="mt-0.5 block text-xs text-ink-dim">
+                          <span className="mt-0.5 block break-all text-xs text-ink-dim">
                             {entry.operatorEmail}
                           </span>
                         )}
+                        {/* O que as colunas escondidas diriam. */}
+                        <span className="mt-1.5 block text-xs text-ink-soft lg:hidden">
+                          {entry.subject}
+                        </span>
+                        <span className="mt-0.5 block font-mono text-xs text-ink-dim lg:hidden">
+                          {entry.at}
+                          {entry.ip !== null && (
+                            <>
+                              <span className="mx-1.5">·</span>
+                              {entry.ip}
+                            </>
+                          )}
+                        </span>
                       </td>
-                      <td className="px-6 py-3.5">
+                      <td className="px-4 py-3.5 align-top sm:px-6 lg:align-middle">
                         <Tag tone={entry.resourceType === 'resume' ? 'quiet' : 'accent'}>
                           {entry.action}
                         </Tag>
                       </td>
-                      <td className="px-6 py-3.5 text-ink-soft">{entry.subject}</td>
-                      <td className="px-6 py-3.5 text-right font-mono text-xs text-ink-dim">
+                      <td className="hidden px-6 py-3.5 text-ink-soft lg:table-cell">
+                        {entry.subject}
+                      </td>
+                      <td className="hidden px-6 py-3.5 text-right font-mono text-xs text-ink-dim lg:table-cell">
                         {entry.ip ?? '—'}
                       </td>
                     </tr>

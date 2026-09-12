@@ -8,7 +8,7 @@ function NavLink({ href, active, children }: { href: string; active: boolean; ch
     <Link
       href={href}
       aria-current={active ? 'page' : undefined}
-      className={`relative px-1 py-4 text-sm transition-colors ${
+      className={`relative whitespace-nowrap px-1 py-4 text-sm transition-colors ${
         active ? 'text-ink' : 'text-ink-dim hover:text-ink-soft'
       }`}
     >
@@ -61,14 +61,17 @@ export function PortalLayout({ children }: { children: ReactNode }) {
 
       {auth.user !== null && (
         <header className="relative z-10 border-b border-line bg-void/80 backdrop-blur-md">
-          <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-10 gap-y-2 px-6">
+          <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-6 gap-y-1 px-4 sm:gap-x-10 sm:gap-y-2 sm:px-6">
             <Link href="/" className="flex items-center gap-3 py-3.5">
               <Logo className="h-7" />
               <span aria-hidden="true" className="h-6 w-px bg-line" />
               <span className="eyebrow">Portal</span>
             </Link>
 
-            <nav className="flex items-center gap-7" aria-label="Áreas do portal">
+            <nav
+              className="-mx-4 order-last flex w-full items-center gap-6 overflow-x-auto px-4 sm:mx-0 sm:order-none sm:w-auto sm:gap-7 sm:overflow-visible sm:px-0"
+              aria-label="Áreas do portal"
+            >
               {auth.can.viewResumes && (
                 <NavLink href="/candidaturas" active={path.startsWith('/candidaturas')}>
                   Candidaturas
@@ -86,7 +89,7 @@ export function PortalLayout({ children }: { children: ReactNode }) {
               )}
             </nav>
 
-            <div className="ml-auto flex items-center gap-5 py-4">
+            <div className="ml-auto flex items-center gap-4 py-2 sm:gap-5 sm:py-4">
               <div className="hidden text-right leading-tight sm:block">
                 <p className="text-sm text-ink">{auth.user.name}</p>
                 <p className="eyebrow">{auth.user.roleLabels}</p>
@@ -106,10 +109,12 @@ export function PortalLayout({ children }: { children: ReactNode }) {
         </header>
       )}
 
-      <main className="relative z-10 mx-auto w-full max-w-7xl flex-1 px-6 py-10">{children}</main>
+      <main className="relative z-10 mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:px-6 sm:py-10">
+        {children}
+      </main>
 
       <footer className="relative z-10 border-t border-line">
-        <div className="mx-auto max-w-7xl px-6 py-5">
+        <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6">
           <p className="font-mono text-[0.6875rem] leading-relaxed text-ink-dim">
             Todo acesso a currículo e a denúncia é registrado em trilha de auditoria (LGPD).
             <br className="hidden sm:inline" /> Trate estes dados com a confidencialidade que as

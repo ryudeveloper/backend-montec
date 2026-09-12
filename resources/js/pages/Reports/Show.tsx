@@ -33,7 +33,7 @@ export default function ReportsShow({ report }: { report: ReportDetail }) {
           </p>
         </div>
       ) : (
-        <Panel className="mt-8 p-7">
+        <Panel className="mt-8 p-5 sm:p-7">
           <dl className="grid gap-6 sm:grid-cols-2">
             <DataRow label="Nome">{report.name}</DataRow>
             <DataRow label="E-mail">
@@ -48,7 +48,7 @@ export default function ReportsShow({ report }: { report: ReportDetail }) {
         </Panel>
       )}
 
-      <Panel glow className="mt-4 p-7">
+      <Panel glow className="mt-4 p-5 sm:p-7">
         <p className="eyebrow">Relato</p>
         {/* React escapa por padrão: é texto enviado por terceiro. */}
         <p className="mt-4 max-w-3xl whitespace-pre-line text-[0.9375rem] leading-relaxed text-ink">

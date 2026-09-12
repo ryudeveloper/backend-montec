@@ -83,7 +83,7 @@ export default function ReportsIndex({ reports, counts, filters }: Props) {
                 >
                   <Link
                     href={report.detailUrl}
-                    className="group block px-6 py-5 transition-colors hover:bg-surface-2"
+                    className="group block px-4 py-5 transition-colors hover:bg-surface-2 sm:px-6"
                   >
                     <div className="flex flex-wrap items-center gap-3">
                       <Tag tone={report.isAnonymous ? 'quiet' : 'accent'}>

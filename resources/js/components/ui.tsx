@@ -36,15 +36,18 @@ export function PageHead({
   actions?: ReactNode;
 }) {
   return (
-    <header className="flex flex-wrap items-end justify-between gap-6 border-b border-line pb-6">
-      <div>
+    <header className="flex flex-wrap items-end justify-between gap-4 border-b border-line pb-6 sm:gap-6">
+      {/* min-w-0 e break-words porque o título pode ser o nome do candidato, que
+          vem de fora: um nome longo sem espaço esticaria o cabeçalho além da
+          largura da tela e criaria rolagem horizontal na página inteira. */}
+      <div className="min-w-0 break-words">
         <p className="eyebrow flex items-center gap-2.5">
           <span aria-hidden="true" className="h-px w-6 bg-accent/60" />
           {eyebrow}
         </p>
         {/* Título grande e apertado contra rótulo pequeno e espaçado: o contraste
             tipográfico é o que dá hierarquia sem precisar de mais cor. */}
-        <h1 className="mt-2.5 font-semibold text-3xl leading-none tracking-tight text-ink">
+        <h1 className="mt-2.5 font-semibold text-2xl leading-none tracking-tight text-ink sm:text-3xl">
           {title}
         </h1>
         {meta !== undefined && <div className="mt-3 text-sm text-ink-dim">{meta}</div>}
@@ -75,7 +78,7 @@ export function Metric({
     <div className="rounded-panel border border-edge bg-surface-2 px-5 py-4">
       <p className="eyebrow">{label}</p>
       <p
-        className={`mt-1.5 font-mono text-3xl leading-none tabular-nums ${
+        className={`mt-1.5 font-mono text-2xl leading-none tabular-nums sm:text-3xl ${
           tone === 'accent' ? 'text-accent' : 'text-ink'
         }`}
       >
@@ -159,7 +162,7 @@ export function Sweep() {
 
 export function Empty({ children }: { children: ReactNode }) {
   return (
-    <div className="px-6 py-16 text-center">
+    <div className="px-4 py-16 text-center sm:px-6">
       <p className="font-mono text-xs uppercase tracking-widest text-ink-dim">sem registros</p>
       <p className="mt-2 text-sm text-ink-soft">{children}</p>
     </div>

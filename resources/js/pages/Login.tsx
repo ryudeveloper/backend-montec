@@ -46,7 +46,7 @@ export default function Login() {
         className="tick-rail pointer-events-none absolute inset-y-0 left-14 hidden w-px opacity-50 lg:block"
       />
 
-      <div className="relative w-full px-6 py-10 sm:px-12 lg:pl-28">
+      <div className="relative w-full px-4 py-10 sm:px-12 lg:pl-28">
         <div className="max-w-md">
           <Logo className="h-9" />
 
@@ -57,7 +57,7 @@ export default function Login() {
             <span aria-hidden="true" className="h-px flex-1 bg-line" />
           </div>
 
-          <h1 className="mt-5 font-semibold text-4xl leading-[1.08] tracking-tight text-ink">
+          <h1 className="mt-5 font-semibold text-3xl leading-[1.08] tracking-tight text-ink sm:text-4xl">
             Intranet
           </h1>
           {/*
@@ -71,7 +71,7 @@ export default function Login() {
           </p>
 
           {/* Bezel do instrumento: sem raio grande, com cantoneiras. */}
-          <div className="bracket-frame mt-9 border border-edge bg-surface/70 p-7 backdrop-blur-md">
+          <div className="bracket-frame mt-9 border border-edge bg-surface/70 p-5 backdrop-blur-md sm:p-7">
             {form.errors.email !== undefined && (
               <div
                 role="alert"

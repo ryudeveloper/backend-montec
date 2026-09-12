@@ -120,11 +120,33 @@ export default function ApplicationsIndex({ applications, totalByOpening, filter
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead>
+                  {/*
+                    Vaga e Recebido saem da tabela no celular e reaparecem
+                    dentro da célula do candidato. Quatro colunas em 375px
+                    obrigavam a arrastar a tabela para o lado só para alcançar
+                    o botão de baixar — e quem usa isso no celular está
+                    conferindo uma candidatura rápido, não navegando planilha.
+                  */}
                   <tr className="border-b border-line">
-                    <th scope="col" className="eyebrow px-6 py-3.5 font-semibold">Candidato</th>
-                    <th scope="col" className="eyebrow px-6 py-3.5 font-semibold">Vaga</th>
-                    <th scope="col" className="eyebrow px-6 py-3.5 font-semibold">Recebido</th>
-                    <th scope="col" className="eyebrow px-6 py-3.5 text-right font-semibold">
+                    <th scope="col" className="eyebrow px-4 py-3.5 font-semibold sm:px-6">
+                      Candidato
+                    </th>
+                    <th
+                      scope="col"
+                      className="eyebrow hidden px-6 py-3.5 font-semibold md:table-cell"
+                    >
+                      Vaga
+                    </th>
+                    <th
+                      scope="col"
+                      className="eyebrow hidden px-6 py-3.5 font-semibold md:table-cell"
+                    >
+                      Recebido
+                    </th>
+                    <th
+                      scope="col"
+                      className="eyebrow px-4 py-3.5 text-right font-semibold sm:px-6"
+                    >
                       Currículo
                     </th>
                   </tr>
@@ -138,20 +160,32 @@ export default function ApplicationsIndex({ applications, totalByOpening, filter
                       style={{ animationDelay: `${Math.min(index, 10) * 18}ms` }}
                       className="animate-rise border-b border-line/60 transition-colors last:border-0 hover:bg-surface-2"
                     >
-                      <td className="px-6 py-4">
+                      <td className="px-4 py-4 sm:px-6">
                         <Link
                           href={application.detailUrl}
                           className="font-medium text-ink transition-colors hover:text-accent"
                         >
                           {application.name}
                         </Link>
-                        <div className="mt-0.5 text-xs text-ink-dim">{application.email}</div>
+                        <div className="mt-0.5 break-all text-xs text-ink-dim">
+                          {application.email}
+                        </div>
+                        {/* O que as colunas escondidas diriam, no lugar onde
+                            ainda cabe. aria-hidden não: no celular esta é a
+                            única via para essa informação. */}
+                        <div className="mt-1.5 text-xs text-ink-soft md:hidden">
+                          {application.jobOpening}
+                          <span className="mx-1.5 text-ink-dim">·</span>
+                          <span className="font-mono text-ink-dim">{application.receivedAt}</span>
+                        </div>
                       </td>
-                      <td className="px-6 py-4 text-ink-soft">{application.jobOpening}</td>
-                      <td className="whitespace-nowrap px-6 py-4 font-mono text-xs text-ink-dim">
+                      <td className="hidden px-6 py-4 text-ink-soft md:table-cell">
+                        {application.jobOpening}
+                      </td>
+                      <td className="hidden whitespace-nowrap px-6 py-4 font-mono text-xs text-ink-dim md:table-cell">
                         {application.receivedAt}
                       </td>
-                      <td className="px-6 py-4 text-right">
+                      <td className="px-4 py-4 text-right align-top sm:px-6 md:align-middle">
                         {/*
                           <a> e não <Link>: o download é resposta de arquivo, não
                           navegação Inertia. Um Link tentaria interpretar o PDF
@@ -159,7 +193,7 @@ export default function ApplicationsIndex({ applications, totalByOpening, filter
                         */}
                         <a
                           href={application.resumeUrl}
-                          className="inline-flex items-center gap-2 rounded-lg border border-line px-3 py-1.5 text-xs text-ink-soft transition-colors hover:border-accent/50 hover:text-accent"
+                          className="inline-flex flex-col items-end gap-0.5 rounded-lg border border-line px-3 py-1.5 text-xs text-ink-soft transition-colors hover:border-accent/50 hover:text-accent sm:flex-row sm:items-center sm:gap-2"
                         >
                           Baixar
                           <span className="font-mono text-ink-dim">{application.resumeSize}</span>

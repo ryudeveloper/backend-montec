@@ -15,7 +15,7 @@ function ScoreBar({ score }: { score: number }) {
 
   return (
     <div className="flex items-center gap-4">
-      <span className="font-mono text-4xl leading-none tabular-nums text-ink">{score}</span>
+      <span className="font-mono text-3xl leading-none tabular-nums text-ink sm:text-4xl">{score}</span>
       <div className="flex-1">
         <div
           role="meter"
@@ -79,7 +79,7 @@ export function AssessmentPanel({ applicationId, assessment, enabled }: Props) {
   const screeningError = errors?.screening;
 
   return (
-    <Panel className="mt-4 p-7">
+    <Panel className="mt-4 p-5 sm:p-7">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="eyebrow">Triagem automática</p>
@@ -117,7 +117,7 @@ export function AssessmentPanel({ applicationId, assessment, enabled }: Props) {
             <ScoreBar score={assessment.score} />
           </div>
 
-          <div className="mt-7 grid gap-7 sm:grid-cols-2">
+          <div className="mt-6 grid gap-6 sm:mt-7 sm:gap-7 sm:grid-cols-2">
             <Bullets title="A favor" items={assessment.strengths} tone="text-accent" />
             <Bullets title="Atenção" items={assessment.gaps} tone="text-warn" />
           </div>
